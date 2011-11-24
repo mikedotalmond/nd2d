@@ -229,34 +229,53 @@ package de.nulldesign.nd2d.display {
 			camera.resizeCameraStage(rect.width, rect.height);
 		}
 
+		/**
+		 * Main enterFrame loop
+		 * 
+		 * override if you need to add other frame-time dependent stuff.. like physics, input polling etc to your main loop
+		 * 
+		 * If overriding, don't bother calling super.mainLoop()
+		 * Just fill your frame time/delta variables, do any other processing, and call <code>if (scene && context3D) draw(delta, time);</code> to draw the scene.
+		 * 
+		 * @param	e
+		 */
 		protected function mainLoop(e:Event):void {
 
-			var t:Number = getTimer() * 0.001;
-			var elapsed:Number = t - lastFramesTime;
-
-			if(scene && context3D) {
-				context3D.clear(scene.br, scene.bg, scene.bb, 1.0);
-
-				if(!isPaused) {
-					scene.stepNode(elapsed, t);
-				}
-
-				if(deviceWasLost) {
-					ShaderCache.getInstance().handleDeviceLoss();
-					scene.handleDeviceLoss();
-					deviceWasLost = false;
-				}
-
-				statsObject.totalDrawCalls = 0;
-				statsObject.totalTris = 0;
-
-				scene.drawNode(context3D, camera, false, statsObject);
-
-				context3D.present();
-			}
-
-			lastFramesTime = t;
+			var time	:Number = getTimer() * 0.001;
+			var delta	:Number = time - lastFramesTime;
+			
+			lastFramesTime = time;
+			
+			if (scene && context3D) draw(delta, time);
 		}
+		
+		/**
+		 * Draw the scene
+		 * @param	delta The frametime, seconds
+		 * @param	time Total runtime duration, seconds
+		 * 
+		 * Be sure to check (scene && context3D) before calling this
+		 */
+		protected function draw(delta:Number, time:Number):void {
+			
+			context3D.clear(scene.br, scene.bg, scene.bb, 1.0);
+			
+			if(!isPaused) scene.stepNode(delta, time);
+			
+			if(deviceWasLost) {
+				ShaderCache.getInstance().handleDeviceLoss();
+				scene.handleDeviceLoss();
+				deviceWasLost = false;
+			}
+			
+			statsObject.totalDrawCalls = 0;
+			statsObject.totalTris = 0;
+			
+			scene.drawNode(context3D, camera, false, statsObject);
+			
+			context3D.present();
+		}
+		
 
 		public function setActiveScene(value:Scene2D):void {
 
