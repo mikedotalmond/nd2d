@@ -170,8 +170,10 @@ package de.nulldesign.nd2d.display {
 		public var children:Vector.<Node2D> = new Vector.<Node2D>();
 		public var parent:Node2D;
 
-		public var vx:Number = 0.0;
-		public var vy:Number = 0.0;
+		public var vx:Number;
+		public var vy:Number;
+
+		public var tag:int = 0;
 
 		public var blendMode:NodeBlendMode = BlendModePresets.NORMAL_PREMULTIPLIED_ALPHA;
 
@@ -181,7 +183,6 @@ package de.nulldesign.nd2d.display {
 
 		protected var timeSinceStartInSeconds:Number = 0.0;
 
-		protected var stage:Stage;
 		protected var camera:Camera2D;
 
 		private var localMouse:Vector3D;
@@ -189,6 +190,12 @@ package de.nulldesign.nd2d.display {
 
 		internal var mouseInNode:Boolean = false;
 		internal var mouseEvents:Vector.<Event>;
+
+		protected var _stage:Stage;
+
+		public function get stage():Stage {
+			return _stage;
+		}
 
 		/**
 		 * @private
@@ -604,16 +611,16 @@ package de.nulldesign.nd2d.display {
 
 		internal function setStageAndCamRef(value:Stage, cameraValue:Camera2D):void {
 
-			if(stage != value) {
+			if(_stage != value) {
 
 				camera = cameraValue;
 
 				if(value) {
-					stage = value;
+					_stage = value;
 					dispatchEvent(new Event(Event.ADDED_TO_STAGE));
 				} else {
 					dispatchEvent(new Event(Event.REMOVED_FROM_STAGE));
-					stage = value;
+					_stage = value;
 				}
 
 				for each(var child:Node2D in children) {
@@ -702,7 +709,7 @@ package de.nulldesign.nd2d.display {
 			}
 
 			child.parent = this;
-			child.setStageAndCamRef(stage, camera);
+			child.setStageAndCamRef(_stage, camera);
 			children.splice(idx, 0, child);
 			return child;
 		}
@@ -747,6 +754,14 @@ package de.nulldesign.nd2d.display {
 			while(children.length > 0) {
 				removeChildAt(0);
 			}
+		}
+
+		public function getChildByTag(value:int):Node2D {
+			for each(var child:Node2D in children) {
+				if(child.tag == value) return child;
+			}
+
+			return null;
 		}
 
 		public function localToGlobal(p:Point):Point {
