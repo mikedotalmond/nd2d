@@ -35,13 +35,14 @@ package de.nulldesign.nd2d.display {
 	import de.nulldesign.nd2d.materials.BlendModePresets;
 	import de.nulldesign.nd2d.materials.Quad2DColorMaterial;
 	import de.nulldesign.nd2d.utils.TextureHelper;
+	import flash.geom.Vector3D;
 
 	import flash.display3D.Context3D;
 
 	public class Quad2D extends Node2D {
 
-		protected var faceList:Vector.<Face>;
-		protected var material:Quad2DColorMaterial;
+		public var faceList:Vector.<Face>;
+		public var material:Quad2DColorMaterial;
 
 		public function get topLeftColor():uint {
 			return faceList[0].v1.color;
@@ -90,13 +91,83 @@ package de.nulldesign.nd2d.display {
 
 			faceList = TextureHelper.generateQuadFromDimensions(pWidth, pHeight);
 			material = new Quad2DColorMaterial();
-
+		
 			topLeftColor = 0xFFFF0000;
 			topRightColor = 0xFF00FF00;
 			bottomRightColor = 0xFF0000FF;
 			bottomLeftColor = 0xFFFFFF00;
 
 			blendMode = BlendModePresets.NORMAL_NO_PREMULTIPLIED_ALPHA;
+		}
+		
+		/**
+		 * Set quad vertex positions (x,y)
+		 * 
+		 * Quad
+		 * v1  v2
+		 * v4  v3
+		 * 
+		 * Faces
+		 * v1,v2,v3
+		 * v1,v3,v4
+		 * 
+		 * @param	v1
+		 * @param	v2
+		 * @param	v3
+		 * @param	v4
+		 */
+		public function setVertexPositions(v1:Vector3D, v2:Vector3D, v3:Vector3D, v4:Vector3D):void {
+			// top left (face 1+2)
+			faceList[0].v1.x = faceList[1].v1.x = v1.x;
+			faceList[0].v1.y = faceList[1].v1.y = v1.y;
+			// top right (face 1)
+			faceList[0].v2.x = v2.x;
+			faceList[0].v2.y = v2.y;
+			// bottom right (face 1+2)
+			faceList[0].v3.x = faceList[1].v2.x = v3.x;
+			faceList[0].v3.y = faceList[1].v2.y = v3.y;
+			// bottom left (face 2)
+			faceList[1].v3.x = v4.x;
+			faceList[1].v3.y = v4.y;
+		}
+		
+		public function copy():Quad2D {
+			
+			var q:Quad2D 		= new Quad2D(_width, _height);
+			
+			q.material			= new Quad2DColorMaterial();
+			q.topLeftColor 		= topLeftColor;
+			q.topRightColor 	= topRightColor;
+			q.bottomRightColor 	= bottomRightColor;
+			q.bottomLeftColor 	= bottomLeftColor;
+			q.blendMode 		= blendMode;
+			q.rotation 			= rotation;
+			q.position 			= position;
+			q.alpha 			= alpha;
+			q.visible 			= visible;
+			q.vx 				= vx;
+			q.vy				= vy;
+			
+			q.setVertexPositions(faceList[0].v1, faceList[0].v2, faceList[0].v3, faceList[1].v3);
+			
+			return q;		
+		}
+		
+		public function setPropertiesFromQuad(quad:Quad2D, updateVertices:Boolean=true):void {
+			material			= new Quad2DColorMaterial();
+			topLeftColor 		= quad.topLeftColor;
+			topRightColor 		= quad.topRightColor;
+			bottomRightColor 	= quad.bottomRightColor;
+			bottomLeftColor 	= quad.bottomLeftColor;
+			blendMode 			= quad.blendMode;
+			rotation 			= quad.rotation;
+			position 			= quad.position;
+			alpha 				= quad.alpha;
+			visible 				= quad.visible;
+			vx 					= quad.vx;
+			vy					= quad.vy;
+			
+			if(updateVertices) setVertexPositions(quad.faceList[0].v1, quad.faceList[0].v2, quad.faceList[0].v3, quad.faceList[1].v3);
 		}
 
 		override public function get numTris():uint {
@@ -109,16 +180,14 @@ package de.nulldesign.nd2d.display {
 
 		override public function handleDeviceLoss():void {
 			super.handleDeviceLoss();
-			if(material)
-				material.handleDeviceLoss();
+			if(material) material.handleDeviceLoss();
 		}
 
 		override protected function draw(context:Context3D, camera:Camera2D):void {
-
 			material.blendMode = blendMode;
 			material.modelMatrix = worldModelMatrix;
 			material.viewProjectionMatrix = camera.getViewProjectionMatrix(false);
-			material.render(context, faceList, 0, faceList.length);
+			material.render(context, faceList, 0, 2);
 		}
 
 		override public function dispose():void {

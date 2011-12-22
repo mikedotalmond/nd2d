@@ -171,15 +171,18 @@ package de.nulldesign.nd2d.utils {
 			uv2 = new UV(1, 0);
 			uv3 = new UV(1, 1);
 			uv4 = new UV(0, 1);
-
-			v1 = new Vertex(-texW, -texH, 0.0);
-			v2 = new Vertex(texW, -texH, 0.0);
-			v3 = new Vertex(texW, texH, 0.0);
-			v4 = new Vertex(-texW, texH, 0.0);
-
+			
+			// clockwise winding, starting top left
+			v1 = new Vertex(-texW, -texH, 0.0); // top left
+			v2 = new Vertex(texW, -texH, 0.0); // top right
+			v3 = new Vertex(texW, texH, 0.0); // bottom right
+			v4 = new Vertex(-texW, texH, 0.0); // bottom left
+			
+			// 1,2,3
 			faceList[0] = new Face(v1, v2, v3, uv1, uv2, uv3);
+			// 1,3,4
 			faceList[1] = new Face(v1, v3, v4, uv1, uv3, uv4);
-
+			
 			return faceList;
 		}
 	}
