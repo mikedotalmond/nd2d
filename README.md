@@ -45,6 +45,12 @@ Important links:
 
 # Changelog:
 
+2012-01-13
+
+- FIXED: GUI layer rendering
+- ADDED: animation end event
+- ADDED: pixel perfect collisions for Sprite2D (see example SpriteHierarchyTest)
+
 2011-12-07
 
 - ADDED: getChildByTag and tag property for Node2D
