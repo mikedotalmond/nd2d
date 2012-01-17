@@ -116,7 +116,7 @@ package de.nulldesign.nd2d.display {
 		 * @param	v3
 		 * @param	v4
 		 */
-		public function setVertexPositions(v1:Vector3D = null, v2:Vector3D = null, v3:Vector3D = null, v4:Vector3D = null):void {
+		public function setVertexPositions(v1:Vector3D, v2:Vector3D, v3:Vector3D, v4:Vector3D):void {
 			// top left (face 1+2)
 			if(v1){
 				faceList[0].v1.x = faceList[1].v1.x = v1.x;
@@ -137,6 +137,8 @@ package de.nulldesign.nd2d.display {
 				faceList[1].v3.x = v4.x;
 				faceList[1].v3.y = v4.y;
 			}
+			
+			material.setVertexPositions(v1, v2, v3, v4);
 		}
 		
 		public function getVertex(index:uint):Vertex {
@@ -157,21 +159,20 @@ package de.nulldesign.nd2d.display {
 		}
 		
 		public function copyPropertiesOf(source:Quad2D):void {
-				
-			var q2d:Quad2D 		= source as Quad2D;
-			topLeftColor 		= q2d.topLeftColor;
-			topRightColor 		= q2d.topRightColor;
-			bottomRightColor 	= q2d.bottomRightColor;
-			bottomLeftColor 	= q2d.bottomLeftColor;
-			blendMode 			= q2d.blendMode;
-			rotation 			= q2d.rotation;
-			position 			= q2d.position;
-			alpha 				= q2d.alpha;
-			visible 			= q2d.visible;
-			vx 					= q2d.vx;
-			vy					= q2d.vy;
 			
-			setVertexPositions(q2d.getVertex(0),q2d.getVertex(1),q2d.getVertex(2),q2d.getVertex(3));
+			topLeftColor 		= source.topLeftColor;
+			topRightColor 		= source.topRightColor;
+			bottomRightColor 	= source.bottomRightColor;
+			bottomLeftColor 	= source.bottomLeftColor;
+			blendMode 			= source.blendMode;
+			rotation 			= source.rotation;
+			position 			= source.position;
+			alpha 				= source.alpha;
+			visible 			= source.visible;
+			vx 					= source.vx;
+			vy					= source.vy;
+			
+			setVertexPositions(source.getVertex(0), source.getVertex(1), source.getVertex(2), source.getVertex(3));
 			
 		}
 
