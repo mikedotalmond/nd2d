@@ -1,20 +1,21 @@
 package de.nulldesign.nd2d.display {
-	import flash.geom.Vector3D;
 	
 	/**
 	 * ...
 	 * @author Mike Almond
 	 */
 	
-	public final class QuadList2D extends Node2D {
+	import flash.geom.Vector3D;
+	
+	public class QuadList2D extends Node2D {
 		
-		static public const EDGE_TOP	:String = "edgeTop";//1,2
-		static public const EDGE_RIGHT	:String = "edgeRight";//2,3
-		static public const EDGE_BOTTOM	:String = "edgeBottom";//3,4
-		static public const EDGE_LEFT	:String = "edgeLeft";//4,1
+		static public const EDGE_TOP	:String = "edgeTop"; // 1,2
+		static public const EDGE_RIGHT	:String = "edgeRight"; // 2,3
+		static public const EDGE_BOTTOM	:String = "edgeBottom"; // 3,4
+		static public const EDGE_LEFT	:String = "edgeLeft"; // 4,1
 		
 		protected var quadList			:Vector.<Quad2D>;
-		protected var index				:uint = 0;
+		protected var index				:int = -1;
 		protected var maxQuads			:uint = 0;
 		protected var cyclic			:Boolean;
 		
@@ -27,7 +28,7 @@ package de.nulldesign.nd2d.display {
 		
 		/**
 		 * Pre-populate the quad list with identical quads, optionally copied from an <code>origin</code> Quad2D 
-		 * @param	startVisible	Make the created quad visible immediately?
+		 * @param	startVisible	Make the created quad visible immediately
 		 * @param	origin			An optinal Quad2D object to make copies from 
 		 */
 		public function fillListWithQuads(startVisible:Boolean = false, origin:Quad2D=null):void {
@@ -37,9 +38,10 @@ package de.nulldesign.nd2d.display {
 				var n:int = maxQuads;
 				quadList = new Vector.<Quad2D>(n, true);
 				while (--n > -1) {
-					quadList[n] = addChild(origin ? origin.copy() : new Quad2D(1, 1)) as Quad2D;
+					quadList[n] = addChild( origin ? origin.copy() : new Quad2D(1, 1)) as Quad2D;
 					quadList[n].visible = startVisible;
 				}
+				index = -1;
 			}
 		}
 		
@@ -52,23 +54,38 @@ package de.nulldesign.nd2d.display {
 			} else if (cyclic) {
 				index++;
 				if(index == quadList.length) index = 0;
-				quadList[index].setPropertiesFromQuad(quad);			
+				quadList[index].copyPropertiesOf(quad);	
 			} else {
 				throw new RangeError("Quad list is full, and not cyclic");
 			}
 		}
 		
-		public function extrudeFromLastQuad(vOffsetA:Vector3D, vOffsetB:Vector3D, edge:String = QuadList2D.EDGE_TOP):void {
-			extrudeFromQuadAt(index, vOffsetA, vOffsetB, edge);
+		/**
+		 * 
+		 * @param	vA			- Vertex A
+		 * @param	vB			- Vertex B
+		 * @param	edge		- Face of quad to extrude from, QuadList2D.EDGE_
+		 * @param	isOffset	- set false to set absolute vertex positions, defaults to true (offset position values)
+		 */
+		public function extrudeFromLastQuad(vA:Vector3D, vB:Vector3D, edge:String = QuadList2D.EDGE_TOP, isOffset:Boolean = true):void {
+			extrudeFromQuadAt(index, vA, vB, edge, isOffset);
 		}
 		
-		public function extrudeFromQuadAt(idx:uint, vOffsetA:Vector3D, vOffsetB:Vector3D, edge:String = QuadList2D.EDGE_TOP):void {
+		/**
+		 * 
+		 * @param	idx			- Index of quad to extrude from
+		 * @param	vA			- Vertex A
+		 * @param	vB			- Vertex B
+		 * @param	edge		- Face of quad to extrude from, QuadList2D.EDGE_
+		 * @param	isOffset	- set false to set absolute vertex positions, defaults to true (offset position values)
+		 */
+		public function extrudeFromQuadAt(idx:uint, vA:Vector3D, vB:Vector3D, edge:String = QuadList2D.EDGE_TOP, isOffset:Boolean = true):void {
 			
 			var sourceQuad:Quad2D = quadList[idx];
 			
-			if (index + 1 == maxQuads && cyclic) {
+			if (cyclic && (index + 1 == maxQuads)) {
 				index = 0;
-			} else if(index < quadList.length-1){
+			} else if (index < quadList.length - 1) {
 				index++;
 			} else {
 				addQuad(sourceQuad.copy());
@@ -77,35 +94,35 @@ package de.nulldesign.nd2d.display {
 			switch(edge) {
 				
 				case QuadList2D.EDGE_TOP:
-					quadList[index].setVertexPositions( //v1=v1+, v2=v2+, v3=v2, v4=v1
-						sourceQuad.faceList[0].v1.add(vOffsetA),
-						sourceQuad.faceList[0].v2.add(vOffsetB), 
-						sourceQuad.faceList[0].v2,
-						sourceQuad.faceList[0].v1);
+					quadList[index].setVertexPositions( //v0=v0+, v1=v1+, v2=v1, v3=v0
+						isOffset ? sourceQuad.getVertex(0).add(vA) : vA,
+						isOffset ? sourceQuad.getVertex(1).add(vB) : vB, 
+						sourceQuad.getVertex(1),
+						sourceQuad.getVertex(0));
 					break;
 					
 				case QuadList2D.EDGE_RIGHT:
-					quadList[index].setVertexPositions( //v1=v2, v2=v2+, v3=v3+, v4=v3
-						sourceQuad.faceList[0].v2,
-						sourceQuad.faceList[0].v2.add(vOffsetA),
-						sourceQuad.faceList[0].v3.add(vOffsetB), 
-						sourceQuad.faceList[0].v3);
+					quadList[index].setVertexPositions( //v0=v1, v1=v1+, v2=v2+, v3=v2
+						sourceQuad.getVertex(1),
+						isOffset ? sourceQuad.getVertex(1).add(vA) : vA,
+						isOffset ? sourceQuad.getVertex(2).add(vB) : vB, 
+						sourceQuad.getVertex(2));
 					break;
 					
 				case QuadList2D.EDGE_BOTTOM:
-					quadList[index].setVertexPositions( //v1=v4, v2=v3, v3=v2+, v4=v1+
-						sourceQuad.faceList[1].v3,
-						sourceQuad.faceList[0].v3,
-						sourceQuad.faceList[0].v3.add(vOffsetA), 
-						sourceQuad.faceList[1].v3.add(vOffsetB));
+					quadList[index].setVertexPositions( //v0=v3, v1=v2, v2=v2+, v3=v3+
+						sourceQuad.getVertex(3),
+						sourceQuad.getVertex(2),
+						isOffset ? sourceQuad.getVertex(2).add(vA) : vA, 
+						isOffset ? sourceQuad.getVertex(3).add(vB) : vB);
 					break;
 					
 				case QuadList2D.EDGE_LEFT:
-					quadList[index].setVertexPositions( //v1=v1+, v2=v1, v3=v4, v4=v4+
-						sourceQuad.faceList[0].v1.add(vOffsetB),
-						sourceQuad.faceList[0].v1,
-						sourceQuad.faceList[1].v3,
-						sourceQuad.faceList[1].v3.add(vOffsetA))
+					quadList[index].setVertexPositions( //v0=v0+, v1=v0, v2=v3, v3=v3+
+						isOffset ? sourceQuad.getVertex(0).add(vB) : vB,
+						sourceQuad.getVertex(0),
+						sourceQuad.getVertex(3),
+						isOffset ? sourceQuad.getVertex(3).add(vA) : vA);
 					break;
 					
 				default:

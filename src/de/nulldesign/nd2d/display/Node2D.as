@@ -33,6 +33,7 @@ package de.nulldesign.nd2d.display {
 	import de.nulldesign.nd2d.materials.BlendModePresets;
 	import de.nulldesign.nd2d.utils.NodeBlendMode;
 	import de.nulldesign.nd2d.utils.StatsObject;
+	import flash.geom.Matrix;
 
 	import flash.display.Stage;
 	import flash.display3D.Context3D;
@@ -765,25 +766,44 @@ package de.nulldesign.nd2d.display {
 		}
 
 		public function localToGlobal(p:Point):Point {
-			var clipSpaceMat:Matrix3D = new Matrix3D();
-			clipSpaceMat.append(worldModelMatrix);
-			clipSpaceMat.append(camera.getViewProjectionMatrix());
-
-			var v:Vector3D = clipSpaceMat.transformVector(new Vector3D(p.x, p.y, 0.0));
-			return new Point((v.x + 1.0) * 0.5 * camera.sceneWidth, (-v.y + 1.0) * 0.5 * camera.sceneHeight);
+			temp_M.identity();
+			temp_M.append(worldModelMatrix);
+			temp_M.append(camera.getViewProjectionMatrix());
+			
+			temp_V.x = p.x;
+			temp_V.y = p.y;
+			var v:Vector3D = temp_M.transformVector(temp_V);
+			return new Point((v.x + 1.0) * 0.5 * camera.sceneWidth + camera.x, (-v.y + 1.0) * 0.5 * camera.sceneHeight + camera.y);
+		}
+		
+		internal const temp_V:Vector3D = new Vector3D();
+		internal const temp_M:Matrix3D = new Matrix3D();
+		
+		public function localToGlobalV(p:Vector3D):Vector3D {
+			
+			temp_M.identity();
+			temp_M.append(worldModelMatrix);
+			temp_M.append(camera.getViewProjectionMatrix());
+			
+			var v:Vector3D = temp_M.transformVector(p);
+			v.x = (v.x + 1.0)  * 0.5 * camera.sceneWidth  + camera.x;
+			v.y = (-v.y + 1.0) * 0.5 * camera.sceneHeight + camera.y;
+			
+			return v;
 		}
 
 		public function globalToLocal(p:Point):Point {
-			var clipSpaceMat:Matrix3D = new Matrix3D();
-			clipSpaceMat.append(worldModelMatrix);
-			clipSpaceMat.append(camera.getViewProjectionMatrix());
-			clipSpaceMat.invert();
+			temp_M.identity();
+			temp_M.append(worldModelMatrix);
+			temp_M.append(camera.getViewProjectionMatrix());
+			temp_M.invert();
 
-			var from:Vector3D = new Vector3D(p.x / camera.sceneWidth * 2.0 - 1.0,
-					-(p.y / camera.sceneHeight * 2.0 - 1.0),
-					0.0, 1.0);
-
-			var v:Vector3D = clipSpaceMat.transformVector(from);
+			temp_V.x = p.x / camera.sceneWidth * 2.0 - 1.0,
+			temp_V.y = -(p.y / camera.sceneHeight * 2.0 - 1.0)
+			temp_V.z = 0.0;
+			temp_V.w = 1.0;
+			
+			var v:Vector3D = temp_M.transformVector(temp_V);
 			v.w = 1.0 / v.w;
 			v.x /= v.w;
 			v.y /= v.w;

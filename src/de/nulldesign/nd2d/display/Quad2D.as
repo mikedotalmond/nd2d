@@ -116,58 +116,63 @@ package de.nulldesign.nd2d.display {
 		 * @param	v3
 		 * @param	v4
 		 */
-		public function setVertexPositions(v1:Vector3D, v2:Vector3D, v3:Vector3D, v4:Vector3D):void {
+		public function setVertexPositions(v1:Vector3D = null, v2:Vector3D = null, v3:Vector3D = null, v4:Vector3D = null):void {
 			// top left (face 1+2)
-			faceList[0].v1.x = faceList[1].v1.x = v1.x;
-			faceList[0].v1.y = faceList[1].v1.y = v1.y;
+			if(v1){
+				faceList[0].v1.x = faceList[1].v1.x = v1.x;
+				faceList[0].v1.y = faceList[1].v1.y = v1.y;
+			}
 			// top right (face 1)
-			faceList[0].v2.x = v2.x;
-			faceList[0].v2.y = v2.y;
+			if (v2) {
+				faceList[0].v2.x = v2.x;
+				faceList[0].v2.y = v2.y;
+			}
 			// bottom right (face 1+2)
-			faceList[0].v3.x = faceList[1].v2.x = v3.x;
-			faceList[0].v3.y = faceList[1].v2.y = v3.y;
-			// bottom left (face 2)
-			faceList[1].v3.x = v4.x;
-			faceList[1].v3.y = v4.y;
+			if (v3) {
+				faceList[0].v3.x = faceList[1].v2.x = v3.x;
+				faceList[0].v3.y = faceList[1].v2.y = v3.y;
+			}
+			// bottom left (face 2
+			if (v4) {
+				faceList[1].v3.x = v4.x;
+				faceList[1].v3.y = v4.y;
+			}
+		}
+		
+		public function getVertex(index:uint):Vertex {
+			switch(index) {
+				case 0: return faceList[0].v1;
+				case 1: return faceList[0].v2;
+				case 2: return faceList[0].v3;
+				case 3: return faceList[1].v3;
+				default: throw new RangeError("I'm a quad! I only have 4 vertices.");
+			}
 		}
 		
 		public function copy():Quad2D {
-			
 			var q:Quad2D 		= new Quad2D(_width, _height);
-			
 			q.material			= new Quad2DColorMaterial();
-			q.topLeftColor 		= topLeftColor;
-			q.topRightColor 	= topRightColor;
-			q.bottomRightColor 	= bottomRightColor;
-			q.bottomLeftColor 	= bottomLeftColor;
-			q.blendMode 		= blendMode;
-			q.rotation 			= rotation;
-			q.position 			= position;
-			q.alpha 			= alpha;
-			q.visible 			= visible;
-			q.vx 				= vx;
-			q.vy				= vy;
-			
-			q.setVertexPositions(faceList[0].v1, faceList[0].v2, faceList[0].v3, faceList[1].v3);
-			
+			q.copyPropertiesOf(this);
 			return q;		
 		}
 		
-		public function setPropertiesFromQuad(quad:Quad2D, updateVertices:Boolean=true):void {
-			material			= new Quad2DColorMaterial();
-			topLeftColor 		= quad.topLeftColor;
-			topRightColor 		= quad.topRightColor;
-			bottomRightColor 	= quad.bottomRightColor;
-			bottomLeftColor 	= quad.bottomLeftColor;
-			blendMode 			= quad.blendMode;
-			rotation 			= quad.rotation;
-			position 			= quad.position;
-			alpha 				= quad.alpha;
-			visible 				= quad.visible;
-			vx 					= quad.vx;
-			vy					= quad.vy;
+		public function copyPropertiesOf(source:Quad2D):void {
+				
+			var q2d:Quad2D 		= source as Quad2D;
+			topLeftColor 		= q2d.topLeftColor;
+			topRightColor 		= q2d.topRightColor;
+			bottomRightColor 	= q2d.bottomRightColor;
+			bottomLeftColor 	= q2d.bottomLeftColor;
+			blendMode 			= q2d.blendMode;
+			rotation 			= q2d.rotation;
+			position 			= q2d.position;
+			alpha 				= q2d.alpha;
+			visible 			= q2d.visible;
+			vx 					= q2d.vx;
+			vy					= q2d.vy;
 			
-			if(updateVertices) setVertexPositions(quad.faceList[0].v1, quad.faceList[0].v2, quad.faceList[0].v3, quad.faceList[1].v3);
+			setVertexPositions(q2d.getVertex(0),q2d.getVertex(1),q2d.getVertex(2),q2d.getVertex(3));
+			
 		}
 
 		override public function get numTris():uint {
@@ -177,17 +182,27 @@ package de.nulldesign.nd2d.display {
 		override public function get drawCalls():uint {
 			return material.drawCalls;
 		}
-
+		
 		override public function handleDeviceLoss():void {
 			super.handleDeviceLoss();
 			if(material) material.handleDeviceLoss();
 		}
-
+		
 		override protected function draw(context:Context3D, camera:Camera2D):void {
 			material.blendMode = blendMode;
 			material.modelMatrix = worldModelMatrix;
 			material.viewProjectionMatrix = camera.getViewProjectionMatrix(false);
 			material.render(context, faceList, 0, 2);
+		}
+		
+		override public function set alpha(value:Number):void {
+			var a:uint = uint(Math.round(value * 0xff)) << 24;
+			topLeftColor 		= (topLeftColor & 0x00ffffff) | a;
+			topRightColor 		= (topRightColor & 0x00ffffff) | a;
+			bottomRightColor 	= (bottomRightColor & 0x00ffffff) | a;
+			bottomLeftColor 	= (bottomLeftColor & 0x00ffffff) | a;
+			
+			super.alpha = value;
 		}
 
 		override public function dispose():void {
