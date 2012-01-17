@@ -465,6 +465,7 @@ package de.nulldesign.nd2d.display {
 		}
 
 		public function Node2D() {
+			
 		}
 
 		/**
@@ -791,19 +792,20 @@ package de.nulldesign.nd2d.display {
 			
 			return v;
 		}
-
+		
 		public function globalToLocal(p:Point):Point {
+			
 			temp_M.identity();
 			temp_M.append(worldModelMatrix);
 			temp_M.append(camera.getViewProjectionMatrix());
 			temp_M.invert();
 
-			temp_V.x = p.x / camera.sceneWidth * 2.0 - 1.0,
-			temp_V.y = -(p.y / camera.sceneHeight * 2.0 - 1.0)
-			temp_V.z = 0.0;
+			temp_V.x = (p.x - camera.x) / camera.sceneWidth * 2.0 - 1.0;
+			temp_V.y = -((p.y - camera.y) / camera.sceneHeight * 2.0 - 1.0);
+			temp_V.z = 0;
 			temp_V.w = 1.0;
 			
-			var v:Vector3D = temp_M.transformVector(temp_V);
+  			var v:Vector3D = temp_M.transformVector(temp_V);
 			v.w = 1.0 / v.w;
 			v.x /= v.w;
 			v.y /= v.w;
