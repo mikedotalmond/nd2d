@@ -197,6 +197,8 @@ package de.nulldesign.nd2d.display {
 		}
 		
 		override public function set alpha(value:Number):void {
+			if (value < 0) value = 0;
+			
 			var a:uint = uint(Math.round(value * 0xff)) << 24;
 			topLeftColor 		= (topLeftColor & 0x00ffffff) | a;
 			topRightColor 		= (topRightColor & 0x00ffffff) | a;
