@@ -26,6 +26,15 @@ package de.nulldesign.nd2d.display {
 			quadList 		= new Vector.<Quad2D>();
 		}
 		
+		override public function dispose():void {
+			if (quadList) {
+				quadList.fixed 	= false;
+				quadList.length = 0;
+				quadList 		= null;
+			}
+			super.dispose();
+		}
+		
 		/**
 		 * Pre-populate the quad list with identical quads, optionally copied from an <code>origin</code> Quad2D 
 		 * @param	startVisible	Make the created quad visible immediately

@@ -131,7 +131,7 @@ package de.nulldesign.nd2d.display {
 	[Event(name="touchEnd", type="flash.events.TouchEvent")]
 
 	/**
-	 * <p>Basic 2D object. All drawable objects must extend Node2D</p>
+	 * <p>Base 2D object. All drawable objects must extend Node2D</p>
 	 * A Node2D has two methods that are called during rendering:
 	 * <ul>
 	 * <li>step - Update the node's position here</li>
@@ -765,7 +765,7 @@ package de.nulldesign.nd2d.display {
 
 			return null;
 		}
-
+		
 		public function localToGlobal(p:Point):Point {
 			temp_M.identity();
 			temp_M.append(worldModelMatrix);
@@ -774,7 +774,7 @@ package de.nulldesign.nd2d.display {
 			temp_V.x = p.x;
 			temp_V.y = p.y;
 			var v:Vector3D = temp_M.transformVector(temp_V);
-			return new Point((v.x + 1.0) * 0.5 * camera.sceneWidth + camera.x, (-v.y + 1.0) * 0.5 * camera.sceneHeight + camera.y);
+			return new Point((v.x + 1.0) * 0.5 * camera.sceneWidth, (-v.y + 1.0) * 0.5 * camera.sceneHeight);
 		}
 		
 		internal const temp_V:Vector3D = new Vector3D();
@@ -787,8 +787,8 @@ package de.nulldesign.nd2d.display {
 			temp_M.append(camera.getViewProjectionMatrix());
 			
 			var v:Vector3D = temp_M.transformVector(p);
-			v.x = (v.x + 1.0)  * 0.5 * camera.sceneWidth  + camera.x;
-			v.y = (-v.y + 1.0) * 0.5 * camera.sceneHeight + camera.y;
+			v.x = (v.x + 1.0)  * 0.5 * camera.sceneWidth;
+			v.y = (-v.y + 1.0) * 0.5 * camera.sceneHeight;
 			
 			return v;
 		}
@@ -810,9 +810,31 @@ package de.nulldesign.nd2d.display {
 			v.x /= v.w;
 			v.y /= v.w;
 			//v.z /= v.w;
-
+			
 			return new Point(v.x, v.y);
 		}
+		
+		public function globalToLocalV(p:Vector3D):Vector3D {
+			
+			temp_M.identity();
+			temp_M.append(worldModelMatrix);
+			temp_M.append(camera.getViewProjectionMatrix());
+			temp_M.invert();
+
+			temp_V.x = (p.x - camera.x) / camera.sceneWidth * 2.0 - 1.0;
+			temp_V.y = -((p.y - camera.y) / camera.sceneHeight * 2.0 - 1.0);
+			temp_V.z = 0;
+			temp_V.w = 1.0;
+			
+  			var v:Vector3D = temp_M.transformVector(temp_V);
+			v.w = 1.0 / v.w;
+			v.x /= v.w;
+			v.y /= v.w;
+			v.z = v.w = 0;
+
+			return v;
+		}
+
 
 		public function dispose():void {
 			for each(var child:Node2D in children) {

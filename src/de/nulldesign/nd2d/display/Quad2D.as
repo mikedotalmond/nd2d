@@ -39,6 +39,9 @@ package de.nulldesign.nd2d.display {
 
 	import flash.display3D.Context3D;
 
+	/**
+	 * A quad can have four custom colors (in ARGB format. eg. 0xFF990022) for each corner. The colors will be interpolated between the corners.
+	 */
 	public class Quad2D extends Node2D {
 
 		public var faceList:Vector.<Face>;
