@@ -33,6 +33,9 @@ package de.nulldesign.nd2d.utils {
 	import de.nulldesign.nd2d.geom.Face;
 	import de.nulldesign.nd2d.geom.UV;
 	import de.nulldesign.nd2d.geom.Vertex;
+	import de.nulldesign.nd2d.materials.MeshData;
+	import flash.geom.Vector3D;
+	import net.nicoptere.delaunay.DelaunayTriangle;
 
 	import flash.display.BitmapData;
 	import flash.display3D.Context3D;
@@ -184,6 +187,62 @@ package de.nulldesign.nd2d.utils {
 			faceList[1] = new Face(v1, v3, v4, uv1, uv3, uv4);
 			
 			return faceList;
+		}
+		
+		static public function generateMeshFromDelaunayTriangulation(triangles:Vector.<DelaunayTriangle>):MeshData {
+			
+			const nTris		:uint = triangles.length;
+			var i			:int;
+			
+			var faceList	:Vector.<Face> = new Vector.<Face>(nTris, true);
+			var tri			:DelaunayTriangle;
+			
+			var minx		:Number = 0;
+			var maxx		:Number = 0;
+			var miny		:Number = 0;
+			var maxy		:Number = 0;
+			
+			// get min/max x/y points for calculating UVs
+			// .. can't help but feel like i'm duplicating work done in the Delaunay triangulation here...
+			i = -1;
+			while (++i < nTris) {
+				tri = triangles[i];
+				
+				if (tri.p1.x < minx) minx = tri.p1.x;
+				if (tri.p2.x < minx) minx = tri.p2.x;
+				if (tri.p3.x < minx) minx = tri.p3.x;
+				
+				if (tri.p1.y < miny) miny = tri.p1.y;
+				if (tri.p2.y < miny) miny = tri.p2.y;
+				if (tri.p3.y < miny) miny = tri.p3.y;
+				
+				if (tri.p1.x > maxx) maxx = tri.p1.x;
+				if (tri.p2.x > maxx) maxx = tri.p2.x;
+				if (tri.p3.x > maxx) maxx = tri.p3.x;
+				
+				if (tri.p1.y > maxy) maxy = tri.p1.y;
+				if (tri.p2.y > maxy) maxy = tri.p2.y;
+				if (tri.p3.y > maxy) maxy = tri.p3.y;
+			}
+			
+			const w		:Number = maxx - minx;
+			const h		:Number = maxy - miny;
+			
+			i = -1;
+			while (++i < nTris) {
+				tri 		= triangles[i];
+				faceList[i] = new Face(tri.p1, tri.p2, tri.p3, 
+										new UV((tri.p1.x - minx) / w, (tri.p1.y - miny) / h),
+										new UV((tri.p2.x - minx) / w, (tri.p2.y - miny) / h),
+										new UV((tri.p3.x - minx) / w, (tri.p3.y - miny) / h)
+									);
+			}
+			
+			return new MeshData(faceList, w, h);
+		}
+		
+		static public function generateMeshFromVertices(vertices:Vector.<Vector3D>):MeshData {
+			return null;
 		}
 	}
 }

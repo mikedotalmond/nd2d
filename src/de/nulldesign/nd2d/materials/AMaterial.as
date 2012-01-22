@@ -67,7 +67,7 @@ package de.nulldesign.nd2d.materials {
         protected var mVertexBuffer:Vector.<Number>;
 
         protected var shaderData:Shader2D;
-        protected var programConstVector:Vector.<Number> = new Vector.<Number>(4);
+        protected var programConstVector:Vector.<Number> = new Vector.<Number>(4, true);
 
         public static const VERTEX_POSITION:String = "PB3D_POSITION";
         public static const VERTEX_UV:String = "PB3D_UV";
@@ -77,12 +77,17 @@ package de.nulldesign.nd2d.materials {
 
         }
 
+		public function get indexCount():uint {
+			if(!mVertexBuffer || mVertexBuffer.length == 0) return 0;
+			return uint(mVertexBuffer.length / shaderData.numFloatsPerVertex);
+		}
+		
         protected function generateBufferData(context:Context3D, faceList:Vector.<Face>):void {
 
             if(vertexBuffer) {
                 return;
             }
-
+			
             initProgram(context);
 
             var i:int;
@@ -152,9 +157,12 @@ package de.nulldesign.nd2d.materials {
                 const mIndexBuffer_length:int = mIndexBuffer.length;
                 indexBuffer = context.createIndexBuffer(mIndexBuffer_length);
                 indexBuffer.uploadFromVector(mIndexBuffer, 0, mIndexBuffer_length);
-
+				
                 numTris = int(mIndexBuffer_length / 3);
             }
+				
+			mIndexBuffer.fixed  = true;
+			mVertexBuffer.fixed = true;
         }
 
         protected function prepareForRender(context:Context3D):void {
@@ -212,29 +220,23 @@ package de.nulldesign.nd2d.materials {
 
                 buffer.push(v.x, v.y);
 
-                if(floatFormat >= 3)
-                    buffer.push(v.z);
-
-                if(floatFormat == 4)
-                    buffer.push(v.w);
+                if(floatFormat >= 3) buffer.push(v.z);
+				
+                if(floatFormat == 4) buffer.push(v.w);
             }
 
             if(semanticsID == VERTEX_UV) {
 
                 buffer.push(uv.u, uv.v);
-
-                if(floatFormat == 3)
-                    buffer.push(0.0);
-
-                if(floatFormat == 4)
-                    buffer.push(0.0, 0.0);
+				
+                if(floatFormat == 3) buffer.push(0.0);
+				
+                if(floatFormat == 4) buffer.push(0.0, 0.0);
             }
 
         	if(semanticsID == VERTEX_COLOR) {
                 buffer.push(v.r,  v.g,  v.b);
-
-                if(floatFormat == 4)
-                    buffer.push(v.a);
+                if(floatFormat == 4) buffer.push(v.a);
             }
         }
 
