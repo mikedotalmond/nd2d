@@ -31,7 +31,7 @@ package de.nulldesign.nd2d.display {
 		 * @param	addCentralVertexToTriangleMesh		(always leave true..? is the option needed?)
 		 * @return	The PolygonData to construct your Polygon2D with.
 		 */
-		public static function regularPolygon(radius:Number, edgeCount:uint = 5, addCentralVertexToTriangleMesh:Boolean = false):PolygonData {
+		public static function regularPolygon(radius:Number, edgeCount:uint = 5, addCentralVertexToTriangleMesh:Boolean = true):PolygonData {
 			if (edgeCount < 5) {
 				if (edgeCount < 4) {
 					throw new ArgumentError(edgeCount + "... isn't many edges is it? I can't create a Polygon2D from that.");
@@ -55,14 +55,14 @@ package de.nulldesign.nd2d.display {
 		}
 		
 		/**
-		 * Just a shortcut to regularPolygon with a default of 32 subdivisions, more of a pointer to how to create circles I guess..
+		 * Just a shortcut to regularPolygon with a default of 24 subdivisions, more of a pointer to how to create circles I guess..
 		 * @param	radius
 		 * @param	subdivisions
 		 * @param	textureObject
 		 * @param	colour
 		 * @return
 		 */
-		public static function circle(radius:Number, subdivisions:uint = 32):PolygonData {
+		public static function circle(radius:Number, subdivisions:uint = 24):PolygonData {
 			return Polygon2D.regularPolygon(radius, subdivisions, true);
 		}
 		

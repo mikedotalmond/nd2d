@@ -13,7 +13,7 @@ package de.nulldesign.nd2d.geom {
 	import net.nicoptere.delaunay.DelaunayTriangle;
 	
 	public final class PolygonData {
-		
+		public var alignedAboutCentroid			:Boolean;
 		public var triangleMeshHasCentralVertex	:Boolean;
 		public var bounds						:Rectangle;
 		public var triangles					:Vector.<DelaunayTriangle>;
@@ -59,12 +59,6 @@ package de.nulldesign.nd2d.geom {
 			
 			bounds = new Rectangle(minX, minY, dx, dy); // rect encompassing the original path bonuds
 			
-			// offset poly points to move the polygone centred about 0,0
-			vertices.map(function(item:Vector3D, index:int, vector:Vector.<Vector3D>):void {
-				item.x -= hdx;
-				item.y -= hdy;
-			});
-			
 			// get centre-of-mass (centroid)
 			const cnt:Vector3D = PolyUtils.getCentroid(vertices);
 			vertices.map(function(item:Vector3D, index:int, vector:Vector.<Vector3D>):void {
@@ -77,6 +71,7 @@ package de.nulldesign.nd2d.geom {
 			if (triangleMeshHasCentralVertex) { // ? add central vetex
 				t.unshift(new Vector3D(0,0,0)); // we're already aligned with centroid at 0,0 - so add the central vertex at 0,0 too
 			}
+			
 			t.fixed = true;
 			// triangulate
 			this.triangles = Delaunay.Triangulate(t);
