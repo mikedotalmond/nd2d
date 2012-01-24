@@ -10,6 +10,7 @@ package de.nulldesign.nd2d.display {
 	import de.nulldesign.nd2d.materials.Polygon2DTextureMaterial;
 	import de.nulldesign.nd2d.materials.texture.Texture2D;
 	import de.nulldesign.nd2d.utils.TextureHelper;
+	import flash.geom.Vector3D;
 	
 	import flash.display3D.Context3D;
 	
@@ -23,13 +24,48 @@ package de.nulldesign.nd2d.display {
 	 */
 	public class Polygon2D extends Node2D {
 		
-		public static function regularPolygon(edges:uint = 5):Polygon2D {
-			return null;
+		/**
+		 * Create a regular polygon (pent,hex,sept,dodeca etc..)
+		 * @param	radius								Radius of created polygon
+		 * @param	edgeCount							Polygon edge count
+		 * @param	addCentralVertexToTriangleMesh		(always leave true..? is the option needed?)
+		 * @return	The PolygonData to construct your Polygon2D with.
+		 */
+		public static function regularPolygon(radius:Number, edgeCount:uint = 5, addCentralVertexToTriangleMesh:Boolean = false):PolygonData {
+			if (edgeCount < 5) {
+				if (edgeCount < 4) {
+					throw new ArgumentError(edgeCount + "... isn't many edges is it? I can't create a Polygon2D from that.");
+				} else {
+					throw new ArgumentError("Only 4 edges? I can't create a Polygon2D from that. Consider using a Quad2D instead.");
+				}
+				return null;
+			}
+			
+			const t	:Number = (Math.PI * 2) / edgeCount;
+			var n	:uint 	= edgeCount + 1;
+			var v	:Vector.<Vector3D> = new Vector.<Vector3D>();
+			var p	:Vector3D;
+			
+			// sweep around the circle described by the radius and create new vertices at each angle increment (where angle increment = 2Pi/edgeCount)
+			while (--n) v.unshift(new Vector3D(Math.sin(Math.PI + n * t) * radius, Math.cos(Math.PI + n * t) * radius));
+			v.fixed = true;
+			
+			// creating a hull so the shape gets aligned correcly, then adding in a central vertex at 0,0 for triangles to radiate from
+			return new PolygonData(v, true, addCentralVertexToTriangleMesh);
 		}
 		
-		public static function circle(radius:Number, subdivisions:uint = 16, textureObject:Texture2D=null, colour:uint=0):Polygon2D {
-			return null;
+		/**
+		 * Just a shortcut to regularPolygon with a default of 32 subdivisions, more of a pointer to how to create circles I guess..
+		 * @param	radius
+		 * @param	subdivisions
+		 * @param	textureObject
+		 * @param	colour
+		 * @return
+		 */
+		public static function circle(radius:Number, subdivisions:uint = 32):PolygonData {
+			return Polygon2D.regularPolygon(radius, subdivisions, true);
 		}
+		
 		
 		
 		public var faceList		:Vector.<Face>;
