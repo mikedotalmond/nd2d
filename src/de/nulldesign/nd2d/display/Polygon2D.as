@@ -1,58 +1,59 @@
 package de.nulldesign.nd2d.display {
 	
-	/**
-	 * ...
-	 * @author Mike Almond
-	 */
-	
 	import de.nulldesign.nd2d.display.Camera2D;
 	import de.nulldesign.nd2d.display.Node2D;
 	import de.nulldesign.nd2d.geom.Face;
-	import de.nulldesign.nd2d.materials.AMaterial;
-	import de.nulldesign.nd2d.materials.AMesh2DMaterial;
+	import de.nulldesign.nd2d.geom.PolygonData;
+	import de.nulldesign.nd2d.materials.APolygon2DMaterial;
 	import de.nulldesign.nd2d.materials.BlendModePresets;
-	import de.nulldesign.nd2d.materials.Mesh2DColorMaterial;
-	import de.nulldesign.nd2d.materials.Mesh2DTextureMaterial;
-	import de.nulldesign.nd2d.materials.MeshData;
+	import de.nulldesign.nd2d.materials.Polygon2DColorMaterial;
+	import de.nulldesign.nd2d.materials.Polygon2DTextureMaterial;
 	import de.nulldesign.nd2d.materials.texture.Texture2D;
 	import de.nulldesign.nd2d.utils.TextureHelper;
 	
 	import flash.display3D.Context3D;
-	import flash.geom.Vector3D;
 	
-	import net.nicoptere.delaunay.Delaunay;
-	
-	
-	public final class Mesh2D extends Node2D {
+	/**
+	 * ...
+	 * @author Mike Almond - https://github.com/mikedotalmond
+	 *
+	 * Convex polygons for nd2d
+	 * Create a new Polygon2D with some PolygonData from a custom vertex list or point-cloud, 
+	 * or use the static Polygon2D.regularPolygon, Polygon2D.circle helpers
+	 */
+	public class Polygon2D extends Node2D {
 		
-		static public function fromPointCloud(points:Vector.<Vector3D>, textureObject:Texture2D=null, colour:uint=0):Mesh2D {
-			return new Mesh2D(TextureHelper.generateMeshFromDelaunayTriangulation(Delaunay.Triangulate(points)), textureObject, colour);
-		}
-		
-		static public function fromVertices(vertices:Vector.<Vector3D>, textureObject:Texture2D=null, colour:uint=0):Mesh2D {
-			return new Mesh2D(TextureHelper.generateMeshFromVertices(vertices), textureObject, colour);
-		}
-		
-		static public function circle(radius:Number, subdivisions:uint, textureObject:Texture2D=null, colour:uint=0):Vector.<Face> {
+		public static function regularPolygon(edges:uint = 5):Polygon2D {
 			return null;
 		}
 		
-		public var faceList	:Vector.<Face>;
-		public var material	:AMesh2DMaterial;
-		public var texture	:Texture2D;
-
-		public function Mesh2D(meshData:MeshData, textureObject:Texture2D = null, colour:uint=0) {
-			_width 			= meshData.width;
-			_height 		= meshData.height;
-			this.faceList 	= meshData.faceList;
-			blendMode 		= BlendModePresets.NORMAL_NO_PREMULTIPLIED_ALPHA;
+		public static function circle(radius:Number, subdivisions:uint = 16, textureObject:Texture2D=null, colour:uint=0):Polygon2D {
+			return null;
+		}
+		
+		
+		public var faceList		:Vector.<Face>;
+		public var material		:APolygon2DMaterial;
+		public var texture		:Texture2D;
+		public var polygonData	:PolygonData;
+		
+		public function Polygon2D(polygonData:PolygonData, textureObject:Texture2D = null, colour:uint=0) {
+			
+			this.polygonData 	= polygonData;
+			_width 				= polygonData.bounds.width;
+			_height 			= polygonData.bounds.height;
+			faceList 			= TextureHelper.generateMeshFaceListFromPolygonData(polygonData);
+			blendMode 			= BlendModePresets.NORMAL_NO_PREMULTIPLIED_ALPHA;
 			
 			if(textureObject) {
-				setMaterial(new Mesh2DTextureMaterial(_width, _height));
+				setMaterial(new Polygon2DTextureMaterial(_width, _height));
 				setTexture(textureObject);
 			} else {
-				setMaterial(new Mesh2DColorMaterial(_width, _height, colour));				
+				setMaterial(new Polygon2DColorMaterial(_width, _height, colour));				
 			}
+			
+			x = polygonData.bounds.x;
+			y = polygonData.bounds.y;
 		}
 		
 		/**
@@ -73,7 +74,7 @@ package de.nulldesign.nd2d.display {
 			}
 		}
 		
-		public function setMaterial(value:AMesh2DMaterial):void {
+		public function setMaterial(value:APolygon2DMaterial):void {
 			
 			if(material) {
 				material.dispose();
@@ -102,9 +103,9 @@ package de.nulldesign.nd2d.display {
 			material.modelMatrix = worldModelMatrix;
 			material.viewProjectionMatrix = camera.getViewProjectionMatrix(false);
 			
-			if (material as Mesh2DTextureMaterial) {
-				(material as Mesh2DTextureMaterial).colorTransform 	= combinedColorTransform;
-				if(texture) (material as Mesh2DTextureMaterial).texture = texture;
+			if (material as Polygon2DTextureMaterial) {
+				(material as Polygon2DTextureMaterial).colorTransform 	= combinedColorTransform;
+				if(texture) (material as Polygon2DTextureMaterial).texture = texture;
 			}
 			
 			material.render(context, faceList, 0, faceList.length);

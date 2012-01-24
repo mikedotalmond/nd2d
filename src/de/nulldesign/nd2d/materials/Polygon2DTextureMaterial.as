@@ -20,7 +20,7 @@ package de.nulldesign.nd2d.materials {
 	 * @author Mike Almond - https://github.com/mikedotalmond
 	 */
 	 
-	public class Mesh2DTextureMaterial extends AMesh2DMaterial {
+	public class Polygon2DTextureMaterial extends APolygon2DMaterial {
 		
         protected static const VERTEX_SHADER:String = "m44 op, va0, vc0   \n" + // vertex * clipspace
                 "mov vt0, va1  \n" + // save uv in temp register
@@ -57,7 +57,7 @@ package de.nulldesign.nd2d.materials {
 		public var uvScaleY:Number = 1.0;
 		
 		
-        public function Mesh2DTextureMaterial(meshWidth:Number, meshHeight:Number) {
+        public function Polygon2DTextureMaterial(meshWidth:Number, meshHeight:Number) {
 			super(meshWidth, meshHeight);
         }
 		

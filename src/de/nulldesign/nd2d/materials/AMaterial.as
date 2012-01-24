@@ -160,7 +160,7 @@ package de.nulldesign.nd2d.materials {
 				
                 numTris = int(mIndexBuffer_length / 3);
             }
-				
+			
 			mIndexBuffer.fixed  = true;
 			mVertexBuffer.fixed = true;
         }

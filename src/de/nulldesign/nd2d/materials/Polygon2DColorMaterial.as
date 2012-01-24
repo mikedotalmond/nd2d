@@ -15,7 +15,7 @@
 	 * @author Mike Almond - https://github.com/mikedotalmond
 	 */
 	
-	public class Mesh2DColorMaterial extends AMesh2DMaterial {
+	public class Polygon2DColorMaterial extends APolygon2DMaterial {
 
 		private const VERTEX_SHADER:String =
 				"m44 op, va0, vc0   \n" + // vertex * clipspace
@@ -27,7 +27,7 @@
 				
 		protected var _colour:uint = 0;
 		
-		public function Mesh2DColorMaterial(meshWidth:Number, meshHeight:Number, colour:uint) {
+		public function Polygon2DColorMaterial(meshWidth:Number, meshHeight:Number, colour:uint) {
 			super(meshWidth, meshHeight);
 			this.color = colour;
 		}
