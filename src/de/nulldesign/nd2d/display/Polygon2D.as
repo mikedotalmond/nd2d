@@ -18,11 +18,110 @@ package de.nulldesign.nd2d.display {
 	 * ...
 	 * @author Mike Almond - https://github.com/mikedotalmond
 	 *
-	 * Convex polygons for nd2d
+	 * Convex polygons for ND2D
 	 * Create a new Polygon2D with some PolygonData from a custom vertex list or point-cloud, 
 	 * or use the static Polygon2D.regularPolygon, Polygon2D.circle helpers
 	 */
 	public class Polygon2D extends Node2D {
+		
+		public var faceList		:Vector.<Face>;
+		public var material		:APolygon2DMaterial;
+		public var texture		:Texture2D;
+		public var polygonData	:PolygonData;
+		
+		/**
+		 * 
+		 * @param	polygonData
+		 * @param	textureObject
+		 * @param	colour
+		 */
+		public function Polygon2D(polygonData:PolygonData, textureObject:Texture2D = null, colour:uint=0) {
+			
+			this.polygonData 	= polygonData;
+			_width 				= polygonData.bounds.width;
+			_height 			= polygonData.bounds.height;
+			faceList 			= TextureHelper.generateMeshFaceListFromPolygonData(polygonData);
+			blendMode 			= BlendModePresets.NORMAL_NO_PREMULTIPLIED_ALPHA;
+			
+			if(textureObject) {
+				setMaterial(new Polygon2DTextureMaterial(_width, _height));
+				setTexture(textureObject);
+			} else {
+				setMaterial(new Polygon2DColorMaterial(_width, _height, colour));				
+			}
+			
+			x = polygonData.bounds.x;
+			y = polygonData.bounds.y;
+		}
+		
+		/**
+		 * The texture object
+		 * @param Texture2D
+		 */
+		public function setTexture(value:Texture2D):void {
+			
+			if(texture) texture.dispose();			
+			texture = value;
+			
+			if(texture) {
+				hasPremultipliedAlphaTexture = texture.hasPremultipliedAlpha;
+				blendMode = texture.hasPremultipliedAlpha ? BlendModePresets.NORMAL_PREMULTIPLIED_ALPHA : BlendModePresets.NORMAL_NO_PREMULTIPLIED_ALPHA;
+			}
+		}
+		
+		public function setMaterial(value:APolygon2DMaterial):void {
+			if(material) material.dispose();
+			this.material = value;
+		}
+		
+		override public function get numTris():uint {
+			return faceList.length;
+		}
+		
+		override public function get drawCalls():uint {
+			return material.drawCalls;
+		}
+		
+		override public function handleDeviceLoss():void {
+			super.handleDeviceLoss();
+			if(material) material.handleDeviceLoss();
+		}
+		
+		override protected function draw(context:Context3D, camera:Camera2D):void {
+			
+			material.blendMode = blendMode;
+			material.modelMatrix = worldModelMatrix;
+			material.viewProjectionMatrix = camera.getViewProjectionMatrix(false);
+			
+			if (material as Polygon2DTextureMaterial) {
+				(material as Polygon2DTextureMaterial).colorTransform 	= combinedColorTransform;
+				if(texture) (material as Polygon2DTextureMaterial).texture = texture;
+			}
+			
+			material.render(context, faceList, 0, faceList.length);
+		}
+		
+		override public function dispose():void {
+			if(material) {
+				material.dispose();
+				material = null;
+			}
+			
+			if (texture) {
+				texture.dispose();
+				texture = null;
+			}
+			
+			faceList = null;
+			
+			super.dispose();
+		}
+		
+		
+		
+		/**
+		 * static helpers...
+		 */
 		
 		/**
 		 * Create a regular polygon (pent,hex,sept,dodeca etc..)
@@ -65,103 +164,5 @@ package de.nulldesign.nd2d.display {
 		public static function circle(radius:Number, subdivisions:uint = 24):PolygonData {
 			return Polygon2D.regularPolygon(radius, subdivisions, true);
 		}
-		
-		
-		
-		public var faceList		:Vector.<Face>;
-		public var material		:APolygon2DMaterial;
-		public var texture		:Texture2D;
-		public var polygonData	:PolygonData;
-		
-		public function Polygon2D(polygonData:PolygonData, textureObject:Texture2D = null, colour:uint=0) {
-			
-			this.polygonData 	= polygonData;
-			_width 				= polygonData.bounds.width;
-			_height 			= polygonData.bounds.height;
-			faceList 			= TextureHelper.generateMeshFaceListFromPolygonData(polygonData);
-			blendMode 			= BlendModePresets.NORMAL_NO_PREMULTIPLIED_ALPHA;
-			
-			if(textureObject) {
-				setMaterial(new Polygon2DTextureMaterial(_width, _height));
-				setTexture(textureObject);
-			} else {
-				setMaterial(new Polygon2DColorMaterial(_width, _height, colour));				
-			}
-			
-			x = polygonData.bounds.x;
-			y = polygonData.bounds.y;
-		}
-		
-		/**
-		 * The texture object
-		 * @param Texture2D
-		 */
-		public function setTexture(value:Texture2D):void {
-			
-			if(texture) {
-				texture.dispose();
-			}
-			
-			texture = value;
-			
-			if(texture) {
-				hasPremultipliedAlphaTexture = texture.hasPremultipliedAlpha;
-				blendMode = texture.hasPremultipliedAlpha ? BlendModePresets.NORMAL_PREMULTIPLIED_ALPHA : BlendModePresets.NORMAL_NO_PREMULTIPLIED_ALPHA;
-			}
-		}
-		
-		public function setMaterial(value:APolygon2DMaterial):void {
-			
-			if(material) {
-				material.dispose();
-			}
-
-			this.material = value;
-		}
-		
-		
-		override public function get numTris():uint {
-			return faceList.length;
-		}
-
-		override public function get drawCalls():uint {
-			return material.drawCalls;
-		}
-		
-		override public function handleDeviceLoss():void {
-			super.handleDeviceLoss();
-			if(material) material.handleDeviceLoss();
-		}
-		
-		override protected function draw(context:Context3D, camera:Camera2D):void {
-			
-			material.blendMode = blendMode;
-			material.modelMatrix = worldModelMatrix;
-			material.viewProjectionMatrix = camera.getViewProjectionMatrix(false);
-			
-			if (material as Polygon2DTextureMaterial) {
-				(material as Polygon2DTextureMaterial).colorTransform 	= combinedColorTransform;
-				if(texture) (material as Polygon2DTextureMaterial).texture = texture;
-			}
-			
-			material.render(context, faceList, 0, faceList.length);
-		}
-		
-		override public function dispose():void {
-			if(material) {
-				material.dispose();
-				material = null;
-			}
-			
-			if (texture) {
-				texture.dispose();
-				texture = null;
-			}
-			
-			faceList = null;
-			
-			super.dispose();
-		}
-		
 	}
 }

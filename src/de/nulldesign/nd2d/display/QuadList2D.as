@@ -9,30 +9,26 @@ package de.nulldesign.nd2d.display {
 	
 	public class QuadList2D extends Node2D {
 		
-		static public const EDGE_TOP	:String = "edgeTop"; // 1,2
-		static public const EDGE_RIGHT	:String = "edgeRight"; // 2,3
+		static public const EDGE_TOP			:String = "edgeTop"; // 1,2
+		static public const EDGE_RIGHT		:String = "edgeRight"; // 2,3
 		static public const EDGE_BOTTOM	:String = "edgeBottom"; // 3,4
-		static public const EDGE_LEFT	:String = "edgeLeft"; // 4,1
+		static public const EDGE_LEFT			:String = "edgeLeft"; // 4,1
 		
-		protected var quadList			:Vector.<Quad2D>;
+		protected var quadList		:Vector.<Quad2D>;
 		protected var index				:int = -1;
-		protected var maxQuads			:uint = 0;
+		protected var maxQuads		:uint = 0;
 		protected var cyclic			:Boolean;
 		
+		/**
+		 * Construct a QuadList (a pool-ish Quad container)
+		 * @param	maxQuads	Max Quads the list can hold
+		 * @param	cyclic	If true, the list wlil recycle previous quads when the end of the list is reached
+		 */
 		public function QuadList2D(maxQuads:uint=0, cyclic:Boolean=true) {
 			super();
 			this.maxQuads 	= maxQuads;
 			this.cyclic 	= cyclic;
 			quadList 		= new Vector.<Quad2D>();
-		}
-		
-		override public function dispose():void {
-			if (quadList) {
-				quadList.fixed 	= false;
-				quadList.length = 0;
-				quadList 		= null;
-			}
-			super.dispose();
 		}
 		
 		/**
@@ -54,6 +50,12 @@ package de.nulldesign.nd2d.display {
 			}
 		}
 		
+		/**
+		 * If the list is not full, or is cyclic, this will add the provided Quad2D to the list
+		 * If the list is full, and not cyclic, a RangeError is thrown
+		 * @throws RangeError
+		 * @param	quad	- The Quad2D to add to the list
+		 */
 		public function addQuad(quad:Quad2D):void {
 			if (maxQuads == 0 || quadList.length < maxQuads) {
 				index = quadList.length;
@@ -63,16 +65,16 @@ package de.nulldesign.nd2d.display {
 			} else if (cyclic) {
 				index++;
 				if(index == quadList.length) index = 0;
-				quadList[index].copyPropertiesOf(quad);	
+				quadList[index].copyPropertiesOf(quad); // don't set or create a new quad, just copy properties into next quad
 			} else {
 				throw new RangeError("Quad list is full, and not cyclic");
 			}
 		}
 		
 		/**
-		 * 
-		 * @param	vA			- Vertex A
-		 * @param	vB			- Vertex B
+		 * Extrude from the last (most recently added or extruded) quad
+		 * @param	vA		- Vertex A
+		 * @param	vB		- Vertex B
 		 * @param	edge		- Face of quad to extrude from, QuadList2D.EDGE_
 		 * @param	isOffset	- set false to set absolute vertex positions, defaults to true (offset position values)
 		 */
@@ -81,16 +83,21 @@ package de.nulldesign.nd2d.display {
 		}
 		
 		/**
-		 * 
-		 * @param	idx			- Index of quad to extrude from
-		 * @param	vA			- Vertex A
-		 * @param	vB			- Vertex B
+		 * Extrude a new Quad2D from the quad at <code>idx</code>
+		 * @throws	RangeError, ReferenceError
+		 * @param	idx		- Index of quad to extrude from
+		 * @param	vA		- Vertex A
+		 * @param	vB		- Vertex B
 		 * @param	edge		- Face of quad to extrude from, QuadList2D.EDGE_
 		 * @param	isOffset	- set false to set absolute vertex positions, defaults to true (offset position values)
 		 */
 		public function extrudeFromQuadAt(idx:uint, vA:Vector3D, vB:Vector3D, edge:String = QuadList2D.EDGE_TOP, isOffset:Boolean = true):void {
 			
-			var sourceQuad:Quad2D = quadList[idx];
+			const sourceQuad:Quad2D = quadList[idx];
+			if (!sourceQuad) {
+				throw new RangeError("Index out of range, no Quad2D exists at " + idx + "");
+				return;
+			}
 			
 			if (cyclic && (index + 1 == maxQuads)) {
 				index = 0;
@@ -140,6 +147,19 @@ package de.nulldesign.nd2d.display {
 			}
 			
 			quadList[index].visible = true;
+		}
+		
+		
+		/**
+		 * clean up
+		 */
+		override public function dispose():void {
+			if (quadList) {
+				quadList.fixed 	= false;
+				quadList.length 	= 0;
+				quadList 			= null;
+			}
+			super.dispose();
 		}
 	}
 }
