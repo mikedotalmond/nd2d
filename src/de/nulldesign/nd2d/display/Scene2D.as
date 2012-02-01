@@ -53,7 +53,9 @@ package de.nulldesign.nd2d.display {
 		internal var bg:Number = 0.0;
 		internal var bb:Number = 0.0;
 
-		private var _backgroundColor:Number = 0x000000;
+		private var _backgroundColor			:Number = 0x000000;
+		public var preferredAntialiasing		:uint = 2; // override/set in your constructor 
+
 
 		public function get backgroundColor():Number {
 			return _backgroundColor;
@@ -81,7 +83,7 @@ package de.nulldesign.nd2d.display {
 			super.handleDeviceLoss();
 			sceneGUILayer.handleDeviceLoss();
 		}
-
+		
 		override internal function stepNode(elapsed:Number, timeSinceStartInSeconds:Number):void {
 			super.stepNode(elapsed, timeSinceStartInSeconds);
 			sceneGUILayer.stepNode(elapsed, timeSinceStartInSeconds);
