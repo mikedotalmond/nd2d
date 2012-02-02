@@ -12,9 +12,11 @@ If you want to contribute, make bugfixes or extend the engine, feel free to fork
 
 # Resources and Links:
 
-- [ND2D Forum](http://www.nulldesign.de/nd2d/forum/)
+- [Getting started - best practices](http://www.nulldesign.de/2012/01/30/nd2d-best-practices-how-to/)
 
-- [ND2D API Documentation](http://www.nulldesign.de/nd2d/docs/)
+- [Forum](http://www.nulldesign.de/nd2d/forum/)
+
+- [API Documentation](http://www.nulldesign.de/nd2d/docs/)
 
 - [Setting up FP11 for IntelliJ](http://www.lidev.com.ar/?p=422)
 
@@ -44,6 +46,12 @@ If you want to contribute, make bugfixes or extend the engine, feel free to fork
 [Check out the WIKI for more details](https://github.com/nulldesign/nd2d/wiki)
 
 # Changelog:
+
+2012-01-30
+
+- ADDED: ZwopTex TextureAtlas parser
+- ADDED: TexturePacker TextureAtlas parser
+- OPTIMIZED: TextureAtlas
 
 2012-01-20
 
