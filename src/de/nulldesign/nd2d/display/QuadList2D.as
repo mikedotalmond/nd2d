@@ -9,15 +9,15 @@ package de.nulldesign.nd2d.display {
 	
 	public class QuadList2D extends Node2D {
 		
-		static public const EDGE_TOP			:String = "edgeTop"; // 1,2
+		static public const EDGE_TOP		:String = "edgeTop"; // 1,2
 		static public const EDGE_RIGHT		:String = "edgeRight"; // 2,3
-		static public const EDGE_BOTTOM	:String = "edgeBottom"; // 3,4
-		static public const EDGE_LEFT			:String = "edgeLeft"; // 4,1
+		static public const EDGE_BOTTOM		:String = "edgeBottom"; // 3,4
+		static public const EDGE_LEFT		:String = "edgeLeft"; // 4,1
 		
-		protected var quadList		:Vector.<Quad2D>;
-		protected var index				:int = -1;
-		protected var maxQuads		:uint = 0;
-		protected var cyclic			:Boolean;
+		protected var quadList				:Vector.<Quad2D>;
+		protected var index					:int = -1;
+		protected var maxQuads				:uint = 0;
+		protected var cyclic				:Boolean;
 		
 		/**
 		 * Construct a QuadList (a pool-ish Quad container)

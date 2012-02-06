@@ -122,9 +122,9 @@ package de.nulldesign.nd2d.materials {
             if(!mVertexBuffer || mVertexBuffer.length == 0) return;
             const idx:uint = bufferIdx * shaderData.numFloatsPerVertex;
 			
-            mVertexBuffer[idx] 				= x;
+            mVertexBuffer[idx] 			= x;
             mVertexBuffer[int(idx + 1)]	= y;
-            needUploadVertexBuffer 	= true;
+            needUploadVertexBuffer 		= true;
         }
     }
 }

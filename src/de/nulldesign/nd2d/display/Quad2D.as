@@ -218,5 +218,12 @@ package de.nulldesign.nd2d.display {
 			}
 			super.dispose();
 		}
+		
+		public function set color(value:uint):void {
+			topLeftColor = bottomLeftColor = topRightColor = bottomRightColor = value;
+		}
+		public function get color():uint {
+			return topLeftColor | bottomLeftColor | topRightColor | bottomRightColor;
+		}
 	}
 }

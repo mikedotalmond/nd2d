@@ -26,9 +26,5 @@ package de.nulldesign.nd2d.materials {
 			registrationOffset 	= new Vector3D();
             drawCalls 			= 1;
         }
-		
-		override protected function generateBufferData(context:Context3D, faceList:Vector.<Face>):void {
-			super.generateBufferData(context, faceList);
-		}
     }
 }

@@ -37,11 +37,11 @@ package de.nulldesign.nd2d.display {
 		 */
 		public function Polygon2D(polygonData:PolygonData, textureObject:Texture2D = null, colour:uint=0) {
 			
-			this.polygonData 	= polygonData;
+			this.polygonData	= polygonData;
 			_width 				= polygonData.bounds.width;
 			_height 			= polygonData.bounds.height;
 			faceList 			= TextureHelper.generateMeshFaceListFromPolygonData(polygonData);
-			blendMode 			= BlendModePresets.NORMAL_NO_PREMULTIPLIED_ALPHA;
+			blendMode			= BlendModePresets.NORMAL_NO_PREMULTIPLIED_ALPHA;
 			
 			if(textureObject) {
 				setMaterial(new Polygon2DTextureMaterial(_width, _height));
@@ -74,6 +74,11 @@ package de.nulldesign.nd2d.display {
 			this.material = value;
 		}
 		
+		
+		public function get numPerimeterVertices():uint {
+			return polygonData.vertices.length;
+		}
+		
 		override public function get numTris():uint {
 			return faceList.length;
 		}
@@ -94,12 +99,13 @@ package de.nulldesign.nd2d.display {
 			material.viewProjectionMatrix = camera.getViewProjectionMatrix(false);
 			
 			if (material as Polygon2DTextureMaterial) {
-				(material as Polygon2DTextureMaterial).colorTransform 	= combinedColorTransform;
+				(material as Polygon2DTextureMaterial).colorTransform = combinedColorTransform;
 				if(texture) (material as Polygon2DTextureMaterial).texture = texture;
 			}
 			
 			material.render(context, faceList, 0, faceList.length);
 		}
+		
 		
 		override public function dispose():void {
 			if(material) {
