@@ -146,10 +146,10 @@ package de.nulldesign.nd2d.display {
 		
 		public function getVertex(index:uint):Vertex {
 			switch(index) {
-				case 0: return faceList[0].v1;
-				case 1: return faceList[0].v2;
-				case 2: return faceList[0].v3;
-				case 3: return faceList[1].v3;
+				case 0: return faceList[0].v1; break;
+				case 1: return faceList[0].v2; break;
+				case 2: return faceList[0].v3; break;
+				case 3: return faceList[1].v3; break;
 				default: throw new RangeError("I'm a quad! I only have 4 vertices.");
 			}
 		}
