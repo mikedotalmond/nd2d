@@ -65,23 +65,23 @@ package de.nulldesign.nd2d.display {
 		public function lineTo(px:Number, py:Number):void {
 			
 			const theta			:Number = Math.atan2(py - lineY, px - lineX) + Math.PI / 2;
-			const sinThetaThick	:Number = Math.sin(theta) * thickness;
-			const cosThetaThick	:Number = Math.cos(theta) * thickness;
+			const sinThetaThick	:Number = (Math.sin(theta) * thickness) / 2.0;
+			const cosThetaThick	:Number = (Math.cos(theta) * thickness) / 2.0;
 			
-			V2_temp.x = px + (cosThetaThick - sinThetaThick);
-			V2_temp.y = py + (sinThetaThick + cosThetaThick);
-			V3_temp.x = px + (-sinThetaThick);
-			V3_temp.y = py + (cosThetaThick);
+			V2_temp.x = px + cosThetaThick;
+			V2_temp.y = py + sinThetaThick;
+			V3_temp.x = px - cosThetaThick;
+			V3_temp.y = py - sinThetaThick;
 			
 			if (drawnSinceMove) {
 				const prevQuad:Quad2D = quadList[int(index == 0 ? quadList[quadList.length - 1] : index - 1)];
 				quadList[index].setVertexPositions(prevQuad.getVertex(3), prevQuad.getVertex(2), V2_temp, V3_temp);
 			} else {
 				// start edge
-				V0_temp.x = lineX + -sinThetaThick;
-				V0_temp.y = lineY + cosThetaThick;
-				V1_temp.x = lineX + (cosThetaThick - sinThetaThick);
-				V1_temp.y = lineY + (sinThetaThick + cosThetaThick);
+				V0_temp.x = lineX - cosThetaThick;
+				V0_temp.y = lineY - sinThetaThick;
+				V1_temp.x = lineX + cosThetaThick;
+				V1_temp.y = lineY + sinThetaThick;
 				quadList[index].setVertexPositions(V0_temp, V1_temp, V2_temp, V3_temp);
 			}
 			
@@ -127,20 +127,19 @@ package de.nulldesign.nd2d.display {
 			var quad			:Quad2D  = quadList[index];
 			var firstPass		:Boolean = !drawnSinceMove;
 			var i				:int 	 = 0;
-			
 			while (++i < subdivisions + 1) {
 				bez.interpolateTo(i * inc, pos);
 				theta 			= Math.atan2(pos.y - lastPos.y, pos.x - lastPos.x) + HalfPi;
-				sinThetaThick 	= Math.sin(theta) * thickness;
-				cosThetaThick 	= Math.cos(theta) * thickness;
+				sinThetaThick 	= (Math.sin(theta) * thickness) / 2.0;
+				cosThetaThick 	= (Math.cos(theta) * thickness) / 2.0;
 				lastPos.setTo(pos.x, pos.y);
 				
 				// end
-				V2_temp.x = pos.x + cosThetaThick - sinThetaThick;
-				V2_temp.y = pos.y + sinThetaThick + cosThetaThick;
-				V3_temp.x = pos.x - sinThetaThick;
-				V3_temp.y = pos.y + cosThetaThick;
-				
+				V2_temp.x = pos.x + cosThetaThick;
+				V2_temp.y = pos.y + sinThetaThick;
+				V3_temp.x = pos.x - cosThetaThick;
+				V3_temp.y = pos.y - sinThetaThick;
+					
 				quad = quadList[index];
 				if (firstPass) { // start
 					firstPass = false;
