@@ -5,15 +5,10 @@ package de.nulldesign.nd2d.display {
 	 * @author Mike Almond - https://github.com/mikedotalmond
 	 */
 	
-	import com.furusystems.logging.slf4as.ILogger;
-	import com.furusystems.logging.slf4as.Logging;
-	
 	import flash.geom.Point;
 	import flash.geom.Vector3D;
 	
 	public class QuadLine2D extends QuadList2D {
-		
-		static public const Logger	:ILogger 	= Logging.getLogger(QuadLine2D);		
 		
 		private const LastPosTemp	:Point 		= new Point();
 		private const PosTemp		:Point 		= new Point();
@@ -33,14 +28,11 @@ package de.nulldesign.nd2d.display {
 		
 		protected var lineAlpha		:Number 	= 1;
 		protected var lineColor		:uint 		= 0x000000;
-		protected var grow			:Boolean 	= false;
 		
-		public function QuadLine2D(maxQuads:uint=512, grow:Boolean=false) {
+		public function QuadLine2D(maxQuads:uint=512) {
 			super(maxQuads, false);
 			fillListWithQuads();
-			this.grow = grow;
 			index = 0;
-			Logger.info("Testing QuadLine2D methods");
 		}
 		
 		public function clear():void {
@@ -100,15 +92,8 @@ package de.nulldesign.nd2d.display {
 			
 			//
 			if (++index == quadList.length) {
-				if (grow) {
-					quadList.fixed 	= false;
-					quadList.push(quadList[quadList.length - 1].copy());
-					quadList.fixed 	= true;
-					Logger.warn("::lineTo - QuadList grown. New size = " + quadList.length.toString());
-				} else {
-					index --;
-					Logger.warn("::lineTo - QuadList exhausted. Set growList=true, or the last quad will be recycled until clear()ed");
-				}
+				index --;
+				trace("::lineTo - QuadList exhausted. The last quad will be recycled until clear()ed");
 			}
 			
 			lineX = px;
@@ -169,15 +154,8 @@ package de.nulldesign.nd2d.display {
 				}
 				
 				if (++index == quadList.length) {
-					if (grow) {
-						quadList.fixed 	= false;
-						quadList.push(quadList[quadList.length - 1].copy());
-						quadList.fixed 	= true;
-						Logger.warn("::cubicCurveTo - QuadList grown. New size = " + quadList.length.toString());
-					} else {
-						index --;
-						Logger.warn("::cubicCurveTo - QuadList exhausted. Last quad will be recycled until clear()ed");
-					}
+					index--;
+					trace("::cubicCurveTo - QuadList exhausted. Last quad will be recycled until clear()ed");
 				}
 			}
 			
