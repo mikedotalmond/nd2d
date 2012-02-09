@@ -10,24 +10,27 @@ package de.nulldesign.nd2d.display {
 	
 	public class QuadLine2D extends QuadList2D {
 		
-		private const LastPosTemp	:Point 		= new Point();
-		private const PosTemp		:Point 		= new Point();
+		private const LastPosTemp		:Point 		= new Point();
+		private const PosTemp			:Point 		= new Point();
 		
-		private const V0_temp		:Vector3D 	= new Vector3D();
-		private const V1_temp		:Vector3D 	= new Vector3D();
-		private const V2_temp		:Vector3D 	= new Vector3D();
-		private const V3_temp		:Vector3D 	= new Vector3D();
-		private const HalfPi		:Number 	= Math.PI / 2;
+		private const V0_temp			:Vector3D 	= new Vector3D();
+		private const V1_temp			:Vector3D 	= new Vector3D();
+		private const V2_temp			:Vector3D 	= new Vector3D();
+		private const V3_temp			:Vector3D 	= new Vector3D();
+		private const HalfPi			:Number 	= Math.PI / 2;
 		
 		
-		protected var lineX			:Number 	= 0;
-		protected var lineY			:Number 	= 0;
-		protected var drawnSinceMove:Boolean 	= false;
+		protected var lineX				:Number 	= 0;
+		protected var lineY				:Number 	= 0;
+		protected var drawnSinceMove	:Boolean 	= false;
 		
-		protected var thickness		:Number 	= 1;
+		protected var thickness			:Number 	= 1;
 		
-		protected var lineAlpha		:Number 	= 1;
-		protected var lineColor		:uint 		= 0x000000;
+		protected var lineColor			:uint 		= 0x000000;
+		protected var lineAlpha			:Number 	= 1;
+		protected var endColor			:uint 		= NaN;
+		protected var endAlpha			:Number 	= NaN;
+		protected var horizontalGradient:Boolean 	= false;
 		
 		public function QuadLine2D(maxQuads:uint=512) {
 			super(maxQuads, false);
@@ -41,10 +44,13 @@ package de.nulldesign.nd2d.display {
 			while (--n > -1) quadList[n].visible = false;
 		}
 		
-		public function lineStyle(thickness:Number = 1, color:uint = 0x000000, alpha:Number = 1):void {
-			this.thickness 	= thickness;
-			lineColor 		= color;
-			lineAlpha 		= alpha;
+		public function lineStyle(thickness:Number = 1, color:uint = 0x000000, alpha:Number = 1, endColor:uint=NaN, endAlpha:Number=NaN, horizontalGradient:Boolean=false):void {
+			this.thickness 			= thickness;
+			this.lineColor 			= color;
+			this.lineAlpha 			= alpha;
+			this.endColor 			= endColor;
+			this.endAlpha 			= endAlpha;
+			this.horizontalGradient = horizontalGradient;
 		}
 		
 		/**
@@ -85,10 +91,10 @@ package de.nulldesign.nd2d.display {
 				quadList[index].setVertexPositions(V0_temp, V1_temp, V2_temp, V3_temp);
 			}
 			
-			quadList[index].color 	= lineColor;
-			quadList[index].alpha 	= lineAlpha;
-			quadList[index].visible = true;
-			drawnSinceMove 			= true;
+			if(!isNaN(endColor) && !isNaN(endAlpha)) quadList[index].linearGradient(lineColor, endColor, lineAlpha, endAlpha, horizontalGradient);
+			else quadList[index].flatColor(lineColor, lineAlpha);
+			
+			drawnSinceMove = true;
 			
 			//
 			if (++index == quadList.length) {
@@ -147,9 +153,7 @@ package de.nulldesign.nd2d.display {
 				} else {	
 					prevQuad = quadList[int(index == 0 ? quadList[quadList.length - 1] : index - 1)];
 					quad.setVertexPositions(prevQuad.getVertex(3), prevQuad.getVertex(2), V2_temp, V3_temp);
-					quad.color 		= lineColor;
-					quad.alpha 		= lineAlpha;
-					quad.visible 	= true;
+					quad.flatColor(lineColor, lineAlpha);
 				}
 				
 				if (++index == quadList.length) {

@@ -99,7 +99,7 @@ package de.nulldesign.nd2d.display {
 			topRightColor = 0xFF00FF00;
 			bottomRightColor = 0xFF0000FF;
 			bottomLeftColor = 0xFFFFFF00;
-
+			
 			blendMode = BlendModePresets.NORMAL_NO_PREMULTIPLIED_ALPHA;
 		}
 		
@@ -208,9 +208,11 @@ package de.nulldesign.nd2d.display {
 			bottomRightColor 	= (bottomRightColor & 0x00ffffff) | a;
 			bottomLeftColor 	= (bottomLeftColor & 0x00ffffff) | a;
 			
-			super.alpha = value;
+			_alpha = value;
+			invalidateColors = true;
+			visible = _alpha > 0.0;
 		}
-
+		
 		override public function dispose():void {
 			if(material) {
 				material.dispose();
@@ -219,11 +221,32 @@ package de.nulldesign.nd2d.display {
 			super.dispose();
 		}
 		
-		public function set color(value:uint):void {
-			topLeftColor = bottomLeftColor = topRightColor = bottomRightColor = value;
+		public function flatColor(value:uint, alpha:Number = 1):void {
+			topLeftColor 		= bottomLeftColor = topRightColor = bottomRightColor = (value & 0x00ffffff) | (uint(Math.round(alpha * 0xff)) << 24);
+			_alpha 				= value;
+			visible 			= _alpha > 0.0;
+			invalidateColors 	= true;
 		}
-		public function get color():uint {
-			return topLeftColor | bottomLeftColor | topRightColor | bottomRightColor;
+		
+		public function linearGradient(start:uint, end:uint, startAlpha:Number = 1.0, endAlpha:Number = 1.0, horizontal:Boolean = false):void {
+			
+			start 	= (start	& 0x00ffffff) | (uint(Math.round(startAlpha * _alpha * 0xff)) << 24);
+			end 	= (end 		& 0x00ffffff) | (uint(Math.round(endAlpha 	* _alpha * 0xff)) << 24);
+			
+			if (horizontal) {
+				bottomLeftColor = start;
+				topRightColor	= end;
+			} else {
+				topRightColor	= start;
+				bottomLeftColor = end;
+			}
+			
+			topLeftColor		= start;
+			bottomRightColor	= end;
+			
+			_alpha 				= (startAlpha + endAlpha) / 2;
+			visible 			= _alpha > 0.0;
+			invalidateColors 	= true;
 		}
 	}
 }
