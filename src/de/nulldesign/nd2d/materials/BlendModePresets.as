@@ -56,5 +56,14 @@ package de.nulldesign.nd2d.materials {
 
         public static const ADD_PREMULTIPLIED_ALPHA:NodeBlendMode = new NodeBlendMode(Context3DBlendFactor.ONE,
                                                                           Context3DBlendFactor.ONE);
+		
+		/**
+		 * @see http://stackoverflow.com/questions/818230/photoshop-blending-mode-to-opengl-es-without-shaders
+		 */
+		static public const SCREEN:NodeBlendMode = new NodeBlendMode(Context3DBlendFactor.ONE,
+                                                                          Context3DBlendFactor.ONE_MINUS_SOURCE_COLOR);
+																		  
+		static public const NOALPHA_MULTIPLY:NodeBlendMode = new NodeBlendMode(Context3DBlendFactor.ZERO,
+                                                                          Context3DBlendFactor.SOURCE_COLOR);
     }
 }

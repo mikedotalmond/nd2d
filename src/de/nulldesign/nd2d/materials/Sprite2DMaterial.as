@@ -126,7 +126,7 @@ package de.nulldesign.nd2d.materials {
 
 			context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, 4, programConstVector);
 
-            var offsetFactor:Number = 1.0 / 255.0;
+            const offsetFactor:Number = 1.0 / 255.0;
 
 			programConstVector[0] = colorTransform.redMultiplier;
 			programConstVector[1] = colorTransform.greenMultiplier;
