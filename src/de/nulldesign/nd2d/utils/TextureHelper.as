@@ -207,10 +207,10 @@ package de.nulldesign.nd2d.utils {
 			while (++i < nTris) {
 				tri 		= poly.triangles[i];
 				faceList[i] = new Face(tri.p1, tri.p2, tri.p3, 
-										new UV((tri.p1.x - minX) / w, (tri.p1.y - minY) / h),
-										new UV((tri.p2.x - minX) / w, (tri.p2.y - minY) / h),
-										new UV((tri.p3.x - minX) / w, (tri.p3.y - minY) / h)
-									);
+					new UV((tri.p1.x - minX) / w, (tri.p1.y - minY) / h),
+					new UV((tri.p2.x - minX) / w, (tri.p2.y - minY) / h),
+					new UV((tri.p3.x - minX) / w, (tri.p3.y - minY) / h)
+				);
 			}
 			
 			return faceList;
