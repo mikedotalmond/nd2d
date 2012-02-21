@@ -26,5 +26,9 @@ package de.nulldesign.nd2d.materials {
 			registrationOffset 	= new Vector3D();
             drawCalls 			= 1;
         }
+		
+		public function get asColorMaterial():Polygon2DColorMaterial { return this as Polygon2DColorMaterial; }
+		public function get asTextureMaterial():Polygon2DTextureMaterial { return this as Polygon2DTextureMaterial; }
+		
     }
 }

@@ -17,13 +17,15 @@
 	
 	public class Polygon2DColorMaterial extends APolygon2DMaterial {
 
+		public var debugTriangles:Boolean = false;
+
 		private const VERTEX_SHADER:String =
 				"m44 op, va0, vc0   \n" + // vertex * clipspace
 						"mov v0, va1		\n";  // copy color
 
 		private const FRAGMENT_SHADER:String =
 				"mov oc, v0		\n";  // mult with colorOffset
-
+		
 				
 		protected var _colour:uint = 0;
 		
@@ -35,7 +37,10 @@
 		override protected function generateBufferData(context:Context3D, faceList:Vector.<Face>):void {
 			const isInit:Boolean = mVertexBuffer == null;
 			super.generateBufferData(context, faceList);
-			if (isInit) this.color = _colour;
+			if (isInit) {
+				color = _colour; 
+				if(debugTriangles) randomiseVertexColors();
+			}
 		}
 
 		override protected function prepareForRender(context:Context3D):void {
@@ -117,6 +122,14 @@
 			var i	:int = -1;
 			while (++i < n) {
 				modifyColorInBuffer(i, r, g, b, a);
+			}
+		}
+		
+		public function randomiseVertexColors():void {
+			const n	:uint = indexCount;
+			var i	:int = -1;
+			while (++i < n) {
+				modifyColorInBuffer(i, Math.random(), Math.random(), Math.random(), 1.0);
 			}
 		}
 	}
