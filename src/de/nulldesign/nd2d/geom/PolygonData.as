@@ -6,22 +6,22 @@ package de.nulldesign.nd2d.geom {
 	 */
 	
 	import de.nulldesign.nd2d.utils.PolyUtils;
+	
 	import flash.geom.Rectangle;
 	import flash.geom.Vector3D;
+	
 	import nape.geom.Vec2;
 	import nape.geom.Vec2List;
 	import nape.phys.Body;
 	import nape.shape.ShapeList;
-	import net.nicoptere.delaunay.Delaunay;
-	import net.nicoptere.delaunay.DelaunayTriangle;
 	
 	public final class PolygonData {
 		
 		public var alignedAboutCentroid			:Boolean;
 		public var triangleMeshHasCentralVertex	:Boolean;
 		public var bounds						:Rectangle;
-		public var triangles					:Vector.<DelaunayTriangle>;
-		public var vertices						:Vector.<Vector3D>;
+		public var triangleVertices				:Vector.<Vertex>;
+		public var polygonVertices				:Vector.<Vertex>;
 		
 		 /**
 		  * 
@@ -30,21 +30,21 @@ package de.nulldesign.nd2d.geom {
 		  * @param	addCentralVertexToTriangleMesh - if set a central vertex is included in the final triangles (not the vertices), 
 		  * 		It sorts out the eventual UV mapping without breaking Nape Polygon construction - polygons for nape must have no interior points)
 		  */
-		public function PolygonData(vertices:Vector.<Vector3D>, constructHull:Boolean = true, addCentralVertexToTriangleMesh:Boolean = true, useBoundsForCentroid:Boolean = false) {
+		public function PolygonData(vertices:Vector.<Vertex>, constructHull:Boolean = true, addCentralVertexToTriangleMesh:Boolean = false, useBoundsForCentroid:Boolean = false) {
 			if (vertices == null) return;
 			if (vertices.length < 3) {
 				throw new RangeError("Too few vertices, that's no polygon!");
 				return;
 			}
 			
-			this.vertices 					= constructHull ? PolyUtils.convexHull(vertices) : vertices;
+			this.polygonVertices 			= constructHull ? PolyUtils.convexHull(vertices) : vertices;
 			triangleMeshHasCentralVertex 	= addCentralVertexToTriangleMesh;
 			init(useBoundsForCentroid);	
 		}
 		
 		private function init(useBoundsForCentroid:Boolean):void {
 			
-			var t:Vector.<Vector3D> = vertices.concat();
+			var t:Vector.<Vertex> = polygonVertices.concat();
 			
 			t.fixed = true;
 			const n:uint = t.length;
@@ -64,22 +64,21 @@ package de.nulldesign.nd2d.geom {
 			
 			bounds = new Rectangle(minX, minY, dx, dy); // rect encompassing the original path bonuds
 			// get centre-of-mass (centroid)
-			const cnt:Vector3D = useBoundsForCentroid ? new Vector3D(bounds.x + (bounds.width / 2), bounds.y + (bounds.height / 2)) : PolyUtils.getCentroid(vertices);
-			vertices.map(function(item:Vector3D, index:int, vector:Vector.<Vector3D>):void {
+			const cnt:Vector3D = useBoundsForCentroid ? new Vector3D(bounds.x + (bounds.width / 2), bounds.y + (bounds.height / 2)) : PolyUtils.getCentroid(polygonVertices);
+			polygonVertices.map(function(item:Vertex, index:int, vector:Vector.<Vertex>):void {
 				item.x -= cnt.x;
 				item.y -= cnt.y;
 			});
 			
-			t = vertices.concat();
+			t = polygonVertices.concat();
 			
 			if (triangleMeshHasCentralVertex) { // ? add central vetex
-				t.unshift(new Vector3D(0,0,0)); // we're already aligned with centroid at 0,0 - so add the central vertex at 0,0 too
+				t.unshift(new Vertex(0,0,0)); // we're already aligned with centroid at 0,0 - so add the central vertex at 0,0 too
 			}
 			
 			t.fixed = true;
 			// triangulate
-			this.triangles = Delaunay.Triangulate(t);
-			//trace(triangles);
+			triangleVertices = PolyUtils.triangulateConvexPolygon(t);
 		}
 		
 		static public function fromBodyShapes(bodies:Vector.<Body>, width:int, height:int, offset:Vec2):PolygonData {
@@ -88,8 +87,9 @@ package de.nulldesign.nd2d.geom {
 			var shapeIndex		:int;
 			var numShapes		:int;
 			var shapes			:ShapeList;
-			var verts			:Vector.<Vector3D>;
-			var triangles		:Vector.<DelaunayTriangle>	= new Vector.<DelaunayTriangle>();
+			
+			var verts			:Vector.<Vertex>	= new Vector.<Vertex>();
+			var triangles		:Vector.<Vertex>	= new Vector.<Vertex>();
 			
 			var polyWorldVerts	:Vec2List;
 			var pCount			:int;
@@ -99,27 +99,31 @@ package de.nulldesign.nd2d.geom {
 			polygonData.bounds 							= new Rectangle(offset.x, offset.y, width, height);
 			polygonData.alignedAboutCentroid 			= true;
 			polygonData.triangleMeshHasCentralVertex 	= false;
-			polygonData.vertices 						= null;
+			polygonData.polygonVertices 				= null;
 			
 			while (++bodyIndex < numBodies) {
 				shapes 			= bodies[bodyIndex].shapes;
 				numShapes 		= shapes.length;
 				shapeIndex 		= -1;
 				while (++shapeIndex < numShapes) {
-					verts 			= new Vector.<Vector3D>(shapes.at(shapeIndex).castPolygon.worldVerts.length, true);
 					polyWorldVerts	= shapes.at(shapeIndex).castPolygon.worldVerts;
 					pCount			= polyWorldVerts.length;
 					pIndex			= -1;
+					
 					while (++pIndex < pCount) {
-						verts[pIndex] = new Vector3D(polyWorldVerts.at(pIndex).x, polyWorldVerts.at(pIndex).y);
+						verts.push(new Vertex(polyWorldVerts.at(pIndex).x + offset.x, polyWorldVerts.at(pIndex).y + offset.y));
 					}
-					verts.fixed = true;
-					triangles 	= triangles.concat(Delaunay.Triangulate(verts));
+					
+					if (verts.length > 2) {
+						triangles 		= triangles.concat(PolyUtils.triangulateConvexPolygon(verts));
+						verts.fixed 	= false;
+						verts.length 	= 0;
+					}
 				}
 			}
 			
-			triangles.fixed 		= true;
-			polygonData.triangles 	= triangles;
+			triangles.fixed 				= true;
+			polygonData.triangleVertices 	= triangles;
 			
 			return polygonData;
 		}

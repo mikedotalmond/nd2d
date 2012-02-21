@@ -4,6 +4,7 @@ package de.nulldesign.nd2d.display {
 	import de.nulldesign.nd2d.display.Node2D;
 	import de.nulldesign.nd2d.geom.Face;
 	import de.nulldesign.nd2d.geom.PolygonData;
+	import de.nulldesign.nd2d.geom.Vertex;
 	import de.nulldesign.nd2d.materials.APolygon2DMaterial;
 	import de.nulldesign.nd2d.materials.BlendModePresets;
 	import de.nulldesign.nd2d.materials.Polygon2DColorMaterial;
@@ -76,7 +77,7 @@ package de.nulldesign.nd2d.display {
 		
 		
 		public function get numPerimeterVertices():uint {
-			return polygonData.vertices.length;
+			return polygonData.polygonVertices.length;
 		}
 		
 		override public function get numTris():uint {
@@ -133,10 +134,10 @@ package de.nulldesign.nd2d.display {
 		 * Create a regular polygon (pent,hex,sept,dodeca etc..)
 		 * @param	radius								Radius of created polygon
 		 * @param	edgeCount							Polygon edge count
-		 * @param	addCentralVertexToTriangleMesh		(always leave true..? is the option needed?)
+		 * @param	addCentralVertexToTriangleMesh		(is the option needed?)
 		 * @return	The PolygonData to construct your Polygon2D with.
 		 */
-		public static function regularPolygon(radius:Number, edgeCount:uint = 5, addCentralVertexToTriangleMesh:Boolean = true):PolygonData {
+		public static function regularPolygon(radius:Number, edgeCount:uint = 5, addCentralVertexToTriangleMesh:Boolean = false):PolygonData {
 			if (edgeCount < 5) {
 				if (edgeCount < 4) {
 					throw new ArgumentError(edgeCount + "... isn't many edges is it? I can't create a Polygon2D from that.");
@@ -148,15 +149,14 @@ package de.nulldesign.nd2d.display {
 			
 			const t	:Number = (Math.PI * 2) / edgeCount;
 			var n	:uint 	= edgeCount + 1;
-			var v	:Vector.<Vector3D> = new Vector.<Vector3D>();
+			var v	:Vector.<Vertex> = new Vector.<Vertex>();
 			var p	:Vector3D;
 			
 			// sweep around the circle described by the radius and create new vertices at each angle increment (where angle increment = 2Pi/edgeCount)
-			while (--n) v.unshift(new Vector3D(Math.sin(Math.PI + n * t) * radius, Math.cos(Math.PI + n * t) * radius));
+			while (--n) v.unshift(new Vertex(Math.sin(Math.PI + n * t) * radius, Math.cos(Math.PI + n * t) * radius));
 			v.fixed = true;
 			
-			// creating a hull so the shape gets aligned correcly, then adding in a central vertex at 0,0 for triangles to radiate from
-			return new PolygonData(v, true, addCentralVertexToTriangleMesh);
+			return new PolygonData(v, false);
 		}
 		
 		/**

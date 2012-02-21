@@ -34,7 +34,6 @@ package de.nulldesign.nd2d.utils {
 	import de.nulldesign.nd2d.geom.PolygonData;
 	import de.nulldesign.nd2d.geom.UV;
 	import de.nulldesign.nd2d.geom.Vertex;
-	
 	import flash.display.BitmapData;
 	import flash.display3D.Context3D;
 	import flash.display3D.Context3DTextureFormat;
@@ -44,12 +43,7 @@ package de.nulldesign.nd2d.utils {
 	import flash.geom.Rectangle;
 	import flash.utils.ByteArray;
 	
-	import net.nicoptere.delaunay.DelaunayTriangle;
-
-
 	public class TextureHelper {
-		public function TextureHelper() {
-		}
 
 		/**
 		 * Will return a point that contains the width and height of the smallest possible texture size in 2^n
@@ -192,11 +186,13 @@ package de.nulldesign.nd2d.utils {
 		
 		static public function generateMeshFaceListFromPolygonData(poly:PolygonData):Vector.<Face> {
 			
-			const nTris		:uint = poly.triangles.length;
+			const n			:uint = int(poly.triangleVertices.length / 3);
 			var i			:int;
 			
-			var faceList	:Vector.<Face> = new Vector.<Face>(nTris, true);
-			var tri			:DelaunayTriangle;
+			var faceList	:Vector.<Face> = new Vector.<Face>(n, true);
+			var v0			:Vertex;
+			var v1			:Vertex;
+			var v2			:Vertex;
 			
 			const minX		:Number = poly.bounds.x;
 			const minY		:Number = poly.bounds.y;
@@ -204,12 +200,17 @@ package de.nulldesign.nd2d.utils {
 			const h			:Number = poly.bounds.height;
 			
 			i = -1;
-			while (++i < nTris) {
-				tri 		= poly.triangles[i];
-				faceList[i] = new Face(tri.p1, tri.p2, tri.p3, 
-					new UV((tri.p1.x - minX) / w, (tri.p1.y - minY) / h),
-					new UV((tri.p2.x - minX) / w, (tri.p2.y - minY) / h),
-					new UV((tri.p3.x - minX) / w, (tri.p3.y - minY) / h)
+			var j:int;
+			while (++i < n) {
+				j 	= int(i * 3);
+				v0	= poly.triangleVertices[j];
+				v1	= poly.triangleVertices[int(j + 1)];
+				v2	= poly.triangleVertices[int(j + 2)];
+				
+				faceList[i] = new Face(v0, v1, v2, 
+					new UV((v0.x - minX) / w, (v0.y - minY) / h),
+					new UV((v1.x - minX) / w, (v1.y - minY) / h),
+					new UV((v2.x - minX) / w, (v2.y - minY) / h)
 				);
 			}
 			
