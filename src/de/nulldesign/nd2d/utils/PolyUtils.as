@@ -93,8 +93,8 @@ package de.nulldesign.nd2d.utils {
 			
 			while (++i < n) {
 				b 	=	(poly[i].x * poly[uint(i + 1)].y - poly[uint(i + 1)].x * poly[i].y);
-				x 	+= 	(poly[i].x + poly[i + 1].x) * b;
-				y 	+= 	(poly[i].y + poly[i + 1].y) * b;
+				x 	+= 	(poly[i].x + poly[uint(i + 1)].x) * b;
+				y 	+= 	(poly[i].y + poly[uint(i + 1)].y) * b;
 			}
 			
 			return new Vector3D(A * x, A * y);
@@ -205,21 +205,16 @@ internal final class Triangulate {
 	// see if p is inside triangle abc
 	private static function insideTriangle(	ax:Number, ay:Number, bx:Number, by:Number, cx:Number, cy:Number, px:Number, py:Number):Boolean {
 		
-		var aX:Number, aY:Number, bX:Number, bY:Number
-		var cX:Number, cY:Number, apx:Number, apy:Number;
-		var bpx:Number, bpy:Number, cpx:Number, cpy:Number;
-		var cCROSSap:Number, bCROSScp:Number, aCROSSbp:Number;
-		
-		aX = cx - bx;  aY = cy - by;
-		bX = ax - cx;  bY = ay - cy;
-		cX = bx - ax;  cY = by - ay;
-		apx= px  -ax;  apy= py - ay;
-		bpx= px - bx;  bpy= py - by;
-		cpx= px - cx;  cpy= py - cy;
+		const aX:Number = cx - bx;  const aY:Number = cy - by;
+		const bX:Number = ax - cx;  const bY:Number = ay - cy;
+		const cX:Number = bx - ax;  const cY:Number = by - ay;
+		const apx:Number= px  -ax;  const apy:Number= py - ay;
+		const bpx:Number= px - bx;  const bpy:Number= py - by;
+		const cpx:Number= px - cx;  const cpy:Number= py - cy;
 
-		aCROSSbp = aX*bpy - aY*bpx;
-		cCROSSap = cX*apy - cY*apx;
-		bCROSScp = bX*cpy - bY*cpx;
+		const aCROSSbp:Number = aX*bpy - aY*bpx;
+		const cCROSSap:Number = cX*apy - cY*apx;
+		const bCROSScp:Number = bX*cpy - bY*cpx;
 		
 		return ((aCROSSbp >= 0.0) && (bCROSScp >= 0.0) && (cCROSSap >= 0.0));
 	}
@@ -227,17 +222,16 @@ internal final class Triangulate {
 	private static function snip(polygonVertices:Vector.<Vertex>, u:int, v:int, w:int, n:int, vertIndices:Vector.<int>):Boolean {
 		
 		var p:int;
-		var ax:Number, ay:Number, bx:Number, by:Number;
-		var cx:Number, cy:Number, px:Number, py:Number;
+		var px:Number, py:Number;
 		
-		ax = polygonVertices[vertIndices[u]].x;
-		ay = polygonVertices[vertIndices[u]].y;
+		const ax:Number = polygonVertices[vertIndices[u]].x;
+		const ay:Number = polygonVertices[vertIndices[u]].y;
 		
-		bx = polygonVertices[vertIndices[v]].x;
-		by = polygonVertices[vertIndices[v]].y;
+		const bx:Number = polygonVertices[vertIndices[v]].x;
+		const by:Number = polygonVertices[vertIndices[v]].y;
 		
-		cx = polygonVertices[vertIndices[w]].x;
-		cy = polygonVertices[vertIndices[w]].y;
+		const cx:Number = polygonVertices[vertIndices[w]].x;
+		const cy:Number = polygonVertices[vertIndices[w]].y;
 		
 		if (EPSILON > (((bx-ax)*(cy-ay)) - ((by-ay)*(cx-ax))) ) return false;
 		
