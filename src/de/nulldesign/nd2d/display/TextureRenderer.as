@@ -44,7 +44,7 @@ package de.nulldesign.nd2d.display {
 	 */
 	public class TextureRenderer extends Node2D {
 
-		protected var renderNode:Node2D;
+		public var renderNode:Node2D;
 		protected var texCamera:Camera2D = new Camera2D(1, 1);
 
 		public var texture:Texture2D;
