@@ -81,9 +81,8 @@ package de.nulldesign.nd2d.geom {
 			triangleVertices = PolyUtils.triangulateConvexPolygon(t);
 		}
 		
-		static public function fromBodyShapes(bodies:Vector.<Body>, width:int, height:int, offset:Vec2):PolygonData {
-			var bodyIndex		:int = -1;
-			var numBodies		:int = bodies.length;
+		static public function fromBodyShapes(body:Body, width:int, height:int):PolygonData {
+			
 			var shapeIndex		:int;
 			var numShapes		:int;
 			var shapes			:ShapeList;
@@ -96,29 +95,27 @@ package de.nulldesign.nd2d.geom {
 			var pIndex			:int;
 			
 			var polygonData:PolygonData 				= new PolygonData(null);
-			polygonData.bounds 							= new Rectangle(offset.x, offset.y, width, height);
+			polygonData.bounds 							= new Rectangle(0,0, width, height);
 			polygonData.alignedAboutCentroid 			= true;
 			polygonData.triangleMeshHasCentralVertex 	= false;
 			polygonData.polygonVertices 				= null;
 			
-			while (++bodyIndex < numBodies) {
-				shapes 			= bodies[bodyIndex].shapes;
-				numShapes 		= shapes.length;
-				shapeIndex 		= -1;
-				while (++shapeIndex < numShapes) {
-					polyWorldVerts	= shapes.at(shapeIndex).castPolygon.worldVerts;
-					pCount			= polyWorldVerts.length;
-					pIndex			= -1;
-					
-					while (++pIndex < pCount) {
-						verts.push(new Vertex(polyWorldVerts.at(pIndex).x + offset.x, polyWorldVerts.at(pIndex).y + offset.y));
-					}
-					
-					if (verts.length > 2) {
-						triangles 		= triangles.concat(PolyUtils.triangulateConvexPolygon(verts));
-						verts.fixed 	= false;
-						verts.length 	= 0;
-					}
+			shapes 			= body.shapes;
+			numShapes 		= shapes.length;
+			shapeIndex 		= -1;
+			while (++shapeIndex < numShapes) {
+				polyWorldVerts	= shapes.at(shapeIndex).castPolygon.worldVerts;
+				pCount			= polyWorldVerts.length;
+				pIndex			= -1;
+				
+				while (++pIndex < pCount) {
+					verts.push(new Vertex(polyWorldVerts.at(pIndex).x, polyWorldVerts.at(pIndex).y));
+				}
+				
+				if (verts.length > 2) {
+					triangles 		= triangles.concat(PolyUtils.triangulateConvexPolygon(verts));
+					verts.fixed 	= false;
+					verts.length 	= 0;
 				}
 			}
 			
