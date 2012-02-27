@@ -223,7 +223,7 @@ package de.nulldesign.nd2d.display {
 		
 		public function flatColor(value:uint, alpha:Number = 1):void {
 			topLeftColor 		= bottomLeftColor = topRightColor = bottomRightColor = (value & 0x00ffffff) | (uint(Math.round(alpha * 0xff)) << 24);
-			_alpha 				= value;
+			_alpha 				= alpha;
 			visible 			= _alpha > 0.0;
 			invalidateColors 	= true;
 		}
