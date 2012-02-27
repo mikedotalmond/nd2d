@@ -16,9 +16,7 @@
 	 */
 	
 	public class Polygon2DColorMaterial extends APolygon2DMaterial {
-
-		public var debugTriangles:Boolean = false;
-
+		
 		private const VERTEX_SHADER:String =
 				"m44 op, va0, vc0   \n" + // vertex * clipspace
 						"mov v0, va1		\n";  // copy color
@@ -37,10 +35,7 @@
 		override protected function generateBufferData(context:Context3D, faceList:Vector.<Face>):void {
 			const isInit:Boolean = mVertexBuffer == null;
 			super.generateBufferData(context, faceList);
-			if (isInit) {
-				color = _colour; 
-				if(debugTriangles) randomiseVertexColors();
-			}
+			if (isInit) color = _colour;
 		}
 
 		override protected function prepareForRender(context:Context3D):void {
