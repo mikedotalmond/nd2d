@@ -81,7 +81,7 @@ package de.nulldesign.nd2d.geom {
 			triangleVertices = PolyUtils.triangulateConvexPolygon(t);
 		}
 		
-		static public function fromBodyShapes(body:Body, width:int, height:int):PolygonData {
+		static public function fromNapeBodyShapes(body:Body, width:int, height:int):PolygonData {
 			
 			var shapeIndex		:int;
 			var numShapes		:int;
