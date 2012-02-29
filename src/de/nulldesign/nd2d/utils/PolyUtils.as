@@ -20,7 +20,7 @@ package de.nulldesign.nd2d.utils {
 		 * @return
 		 */
 		public static function convexHull(pointCloud:Vector.<Vertex>):Vector.<Vertex> {
-			
+			pointCloud.fixed = true;
 			pointCloud.sort(sortVector3DByX); // minX -> maxX
 			
 			const n			:uint = pointCloud.length;

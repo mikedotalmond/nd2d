@@ -25,6 +25,7 @@ package de.nulldesign.nd2d.display {
 		protected var drawnSinceMove	:Boolean 	= false;
 		
 		protected var thickness			:Number 	= 1;
+		protected var endThickScale		:Number 	= 1;
 		
 		protected var lineColor			:uint 		= 0x000000;
 		protected var lineAlpha			:Number 	= 1;
@@ -44,8 +45,9 @@ package de.nulldesign.nd2d.display {
 			while (--n > -1) quadList[n].visible = false;
 		}
 		
-		public function lineStyle(thickness:Number = 1, color:uint = 0x000000, alpha:Number = 1, endColor:uint=NaN, endAlpha:Number=NaN, horizontalGradient:Boolean=false):void {
+		public function lineStyle(thickness:Number = 1, color:uint = 0x000000, alpha:Number = 1, endThickScale:Number=1, endColor:uint=NaN, endAlpha:Number=NaN, horizontalGradient:Boolean=false):void {
 			this.thickness 			= thickness;
+			this.endThickScale		= endThickScale;
 			this.lineColor 			= color;
 			this.lineAlpha 			= alpha;
 			this.endColor 			= endColor;
@@ -74,10 +76,10 @@ package de.nulldesign.nd2d.display {
 			const sinThetaThick	:Number = (Math.sin(theta) * thickness) / 2.0;
 			const cosThetaThick	:Number = (Math.cos(theta) * thickness) / 2.0;
 			
-			V2_temp.x = px + cosThetaThick;
-			V2_temp.y = py + sinThetaThick;
-			V3_temp.x = px - cosThetaThick;
-			V3_temp.y = py - sinThetaThick;
+			V2_temp.x = px + cosThetaThick * endThickScale;
+			V2_temp.y = py + sinThetaThick * endThickScale;
+			V3_temp.x = px - cosThetaThick * endThickScale;
+			V3_temp.y = py - sinThetaThick * endThickScale;
 			
 			if (drawnSinceMove) {
 				const prevQuad:Quad2D = quadList[int(index == 0 ? quadList[quadList.length - 1] : index - 1)];
@@ -98,8 +100,8 @@ package de.nulldesign.nd2d.display {
 			
 			//
 			if (++index == quadList.length) {
-				index --;
-				trace("::lineTo - QuadList exhausted. The last quad will be recycled until clear()ed");
+				index = 0;
+				//trace("::lineTo - QuadList exhausted. The last quad will be recycled until clear()ed");
 			}
 			
 			lineX = px;

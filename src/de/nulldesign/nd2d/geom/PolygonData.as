@@ -6,6 +6,7 @@ package de.nulldesign.nd2d.geom {
 	 */
 	
 	import de.nulldesign.nd2d.utils.PolyUtils;
+	import flash.display.Shape;
 	
 	import flash.geom.Rectangle;
 	import flash.geom.Vector3D;
@@ -51,11 +52,11 @@ package de.nulldesign.nd2d.geom {
 			
 			t.sort(PolyUtils.sortVector3DByY);
 			const minY	:Number = t[0].y
-			const maxY	:Number = t[n - 1].y;
+			const maxY	:Number = t[uint(n - 1)].y;
 			
 			t.sort(PolyUtils.sortVector3DByX);
 			const minX	:Number = t[0].x
-			const maxX	:Number = t[n - 1].x;
+			const maxX	:Number = t[uint(n - 1)].x;
 			
 			const dx	:Number = maxX - minX; // width
 			const dy	:Number = maxY - minY; // height
@@ -81,42 +82,38 @@ package de.nulldesign.nd2d.geom {
 			triangleVertices = PolyUtils.triangulateConvexPolygon(t);
 		}
 		
-		static public function fromNapeBodyShapes(body:Body, width:int, height:int):PolygonData {
+		static public function fromNapeBodyShapes(shapes:ShapeList, width:int, height:int):PolygonData {
 			
-			var shapeIndex		:int;
-			var numShapes		:int;
-			var shapes			:ShapeList;
+			var shapeIndex		:int = -1;
+			const numShapes		:int = shapes.length;
 			
 			var verts			:Vector.<Vertex>	= new Vector.<Vertex>();
 			var triangles		:Vector.<Vertex>	= new Vector.<Vertex>();
 			
 			var polyWorldVerts	:Vec2List;
-			var pCount			:int;
-			var pIndex			:int;
+			var vCount			:int;
+			var vIndex			:int;
 			
 			var polygonData:PolygonData 				= new PolygonData(null);
-			polygonData.bounds 							= new Rectangle(0,0, width, height);
+			polygonData.bounds 							= new Rectangle(0, 0, width, height);
 			polygonData.alignedAboutCentroid 			= true;
 			polygonData.triangleMeshHasCentralVertex 	= false;
 			polygonData.polygonVertices 				= null;
-			
-			shapes 			= body.shapes;
-			numShapes 		= shapes.length;
-			shapeIndex 		= -1;
+			verts.fixed = false;
 			while (++shapeIndex < numShapes) {
 				polyWorldVerts	= shapes.at(shapeIndex).castPolygon.worldVerts;
-				pCount			= polyWorldVerts.length;
-				pIndex			= -1;
+				vCount			= polyWorldVerts.length;
 				
-				while (++pIndex < pCount) {
-					verts.push(new Vertex(polyWorldVerts.at(pIndex).x, polyWorldVerts.at(pIndex).y));
+				if (vCount > 2) {
+					vIndex = -1;
+					while (++vIndex < vCount) {
+						verts.push(new Vertex(polyWorldVerts.at(vIndex).x, polyWorldVerts.at(vIndex).y));
+					}	
+					triangles 	= triangles.concat(PolyUtils.triangulateConvexPolygon(verts));
+					verts.fixed = false;
 				}
 				
-				if (verts.length > 2) {
-					triangles 		= triangles.concat(PolyUtils.triangulateConvexPolygon(verts));
-					verts.fixed 	= false;
-					verts.length 	= 0;
-				}
+				verts.length = 0;
 			}
 			
 			triangles.fixed 				= true;
