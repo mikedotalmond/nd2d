@@ -19,7 +19,6 @@ package de.nulldesign.nd2d.display {
 		private const V3_temp			:Vector3D 	= new Vector3D();
 		private const HalfPi			:Number 	= Math.PI / 2;
 		
-		
 		protected var lineX				:Number 	= 0;
 		protected var lineY				:Number 	= 0;
 		protected var drawnSinceMove	:Boolean 	= false;
@@ -123,6 +122,11 @@ package de.nulldesign.nd2d.display {
 			drawBezierSegment(new BezierSegment(lineX, lineY, controlX1, controlY1, controlX2, controlY2, anchorX, anchorY), segments);			
 		}
 		
+		/**
+		 * 
+		 * @param	bez
+		 * @param	subdivisions
+		 */
 		private function drawBezierSegment(bez:BezierSegment, subdivisions:uint = 64):void {
 			const inc			:Number = 1.0 / subdivisions;
 			const lastPos		:Point 	= LastPosTemp;
@@ -147,7 +151,7 @@ package de.nulldesign.nd2d.display {
 				V2_temp.y = pos.y + sinThetaThick;
 				V3_temp.x = pos.x - cosThetaThick;
 				V3_temp.y = pos.y - sinThetaThick;
-					
+				
 				quad = quadList[index];
 				if (firstPass) { // start
 					firstPass = false;
@@ -155,7 +159,9 @@ package de.nulldesign.nd2d.display {
 				} else {	
 					prevQuad = quadList[int(index == 0 ? quadList[quadList.length - 1] : index - 1)];
 					quad.setVertexPositions(prevQuad.getVertex(3), prevQuad.getVertex(2), V2_temp, V3_temp);
-					quad.flatColor(lineColor, lineAlpha);
+					
+					if(!isNaN(endColor) && !isNaN(endAlpha)) quadList[index].linearGradient(lineColor, endColor, lineAlpha, endAlpha, horizontalGradient);
+					else quadList[index].flatColor(lineColor, lineAlpha);
 				}
 				
 				if (++index == quadList.length) {
