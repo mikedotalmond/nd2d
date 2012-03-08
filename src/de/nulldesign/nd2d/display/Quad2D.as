@@ -154,7 +154,7 @@ package de.nulldesign.nd2d.display {
 			}
 		}
 		
-		public function copy():Quad2D {
+		public function copy():Node2D {
 			var q:Quad2D 		= new Quad2D(_width, _height);
 			q.material			= new Quad2DColorMaterial();
 			q.copyPropertiesOf(this);

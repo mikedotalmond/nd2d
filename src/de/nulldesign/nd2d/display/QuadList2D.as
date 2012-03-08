@@ -104,7 +104,7 @@ package de.nulldesign.nd2d.display {
 			} else if (index < quadList.length - 1) {
 				index++;
 			} else {
-				addQuad(sourceQuad.copy());
+				addQuad(sourceQuad.copy() as Quad2D);
 			}
 			
 			switch(edge) {
