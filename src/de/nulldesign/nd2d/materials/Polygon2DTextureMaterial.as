@@ -57,8 +57,13 @@ package de.nulldesign.nd2d.materials {
 		public var uvScaleY:Number = 1.0;
 		
 		
-        public function Polygon2DTextureMaterial(meshWidth:Number, meshHeight:Number) {
-			super(meshWidth, meshHeight);
+        public function Polygon2DTextureMaterial() {
+			super();
+			
+			uvScaleX = 0.5;
+			uvScaleY = 0.5;
+			uvOffsetX = -0.5;
+			uvOffsetY = -0.5;
         }
 		
         override protected function prepareForRender(context:Context3D):void {

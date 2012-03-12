@@ -45,10 +45,10 @@ package de.nulldesign.nd2d.display {
 			blendMode			= BlendModePresets.NORMAL_NO_PREMULTIPLIED_ALPHA;
 			
 			if(textureObject) {
-				setMaterial(new Polygon2DTextureMaterial(_width, _height));
+				setMaterial(new Polygon2DTextureMaterial());
 				setTexture(textureObject);
 			} else {
-				setMaterial(new Polygon2DColorMaterial(_width, _height, colour));				
+				setMaterial(new Polygon2DColorMaterial(colour));				
 			}
 			
 			x = polygonData.bounds.x;

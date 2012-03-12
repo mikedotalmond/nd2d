@@ -18,17 +18,16 @@
 	public class Polygon2DColorMaterial extends APolygon2DMaterial {
 		
 		private const VERTEX_SHADER:String =
-				"m44 op, va0, vc0   \n" + // vertex * clipspace
-						"mov v0, va1		\n";  // copy color
+			"m44 op, va0, vc0   \n" + // vertex * clipspace
+			"mov v0, va1		\n";  // copy color
 
-		private const FRAGMENT_SHADER:String =
-				"mov oc, v0		\n";  // mult with colorOffset
+		private const FRAGMENT_SHADER:String = 
+			"mov oc, v0		\n";  // mult with colorOffset
 		
-				
 		protected var _colour:uint = 0;
 		
-		public function Polygon2DColorMaterial(meshWidth:Number, meshHeight:Number, colour:uint) {
-			super(meshWidth, meshHeight);
+		public function Polygon2DColorMaterial(colour:uint) {
+			super();
 			this.color = colour;
 		}
 		
@@ -40,12 +39,12 @@
 
 		override protected function prepareForRender(context:Context3D):void {
 			super.prepareForRender(context);
-
+			
 			clipSpaceMatrix.identity();
 			clipSpaceMatrix.appendTranslation(registrationOffset.x, registrationOffset.y, 0);
 			clipSpaceMatrix.append(modelMatrix);
 			clipSpaceMatrix.append(viewProjectionMatrix);
-
+			
 			context.setVertexBufferAt(0, vertexBuffer, 0, Context3DVertexBufferFormat.FLOAT_2); // vertex
 			context.setVertexBufferAt(1, vertexBuffer, 2, Context3DVertexBufferFormat.FLOAT_4); // color
 			context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, clipSpaceMatrix, true);
