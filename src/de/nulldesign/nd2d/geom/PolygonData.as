@@ -29,18 +29,15 @@ package de.nulldesign.nd2d.geom {
 		  * 
 		  * @param	vertices		List of Vector3Ds describing a convex polygon, or if constructHull==true, a point cloud to be formed into a convex polygon
 		  * @param	constructHull	Set true for most cases - //NOTE: is the option needed?
-		  * @param	addCentralVertexToTriangleMesh - if set a central vertex is included in the final triangles (not the vertices), 
-		  * 		It sorts out the eventual UV mapping without breaking Nape Polygon construction - polygons for nape must have no interior points)
 		  */
-		public function PolygonData(vertices:Vector.<Vertex>, constructHull:Boolean = true, addCentralVertexToTriangleMesh:Boolean = false, useBoundsForCentroid:Boolean = false) {
+		public function PolygonData(vertices:Vector.<Vertex>, constructHull:Boolean = true, useBoundsForCentroid:Boolean = false) {
 			if (vertices == null) return;
 			if (vertices.length < 3) {
 				throw new RangeError("Too few vertices, that's no polygon!");
 				return;
 			}
 			
-			this.polygonVertices 			= constructHull ? PolyUtils.convexHull(vertices) : vertices;
-			triangleMeshHasCentralVertex 	= addCentralVertexToTriangleMesh;
+			this.polygonVertices = constructHull ? PolyUtils.convexHull(vertices) : vertices;
 			init(useBoundsForCentroid);	
 		}
 		
@@ -74,12 +71,7 @@ package de.nulldesign.nd2d.geom {
 				item.y -= cnt.y;
 			});
 			
-			t = polygonVertices.concat();
-			
-			if (triangleMeshHasCentralVertex) { // ? add central vetex
-				t.unshift(new Vertex(0,0,0)); // we're already aligned with centroid at 0,0 - so add the central vertex at 0,0 too
-			}
-			
+			t = polygonVertices.concat();			
 			t.fixed = true;
 			// triangulate
 			triangleVertices = PolyUtils.triangulateConvexPolygon(t);
