@@ -2,6 +2,7 @@ package de.nulldesign.nd2d.utils {
 	
 	import de.nulldesign.nd2d.geom.Vertex;
 	import flash.geom.Vector3D;
+	import skybox.utils.fastSort;
 	
 	final public class PolyUtils {
 		
@@ -21,7 +22,8 @@ package de.nulldesign.nd2d.utils {
 		 */
 		public static function convexHull(pointCloud:Vector.<Vertex>):Vector.<Vertex> {
 			pointCloud.fixed = true;
-			pointCloud.sort(sortVector3DByX); // minX -> maxX
+			fastSort(pointCloud, "x", Array.NUMERIC);
+			//pointCloud.sort(sortVector3DByX); // minX -> maxX
 			
 			const n			:uint = pointCloud.length;
 			const twoPi		:Number = Math.PI * 2;
