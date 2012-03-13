@@ -7,7 +7,6 @@ package de.nulldesign.nd2d.geom {
 	
 	import de.nulldesign.nd2d.utils.PolyUtils;
 	import flash.display.Shape;
-	import skybox.utils.fastSort;
 	
 	import flash.geom.Rectangle;
 	import flash.geom.Vector3D;
@@ -48,13 +47,11 @@ package de.nulldesign.nd2d.geom {
 			t.fixed = true;
 			const n:uint = t.length;
 			
-			fastSort(t, "y", Array.NUMERIC);
-			//t.sort(PolyUtils.sortVector3DByY);
+			t.sort(PolyUtils.sortVector3DByY);
 			const minY	:Number = t[0].y
 			const maxY	:Number = t[uint(n - 1)].y;
 			
-			fastSort(t, "x", Array.NUMERIC);
-			//t.sort(PolyUtils.sortVector3DByX);
+			t.sort(PolyUtils.sortVector3DByX);
 			const minX	:Number = t[0].x
 			const maxX	:Number = t[uint(n - 1)].x;
 			
