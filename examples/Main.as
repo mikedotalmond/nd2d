@@ -72,6 +72,7 @@ package
 	import tests.SpriteHierarchyTest2;
 	import tests.SpriteTest;
 	import tests.StarFieldTest;
+	import tests.SpriteCloudVisibilityTest;
 	import tests.TextFieldTest;
 	import tests.TextureAndRotationOptionsTest;
 	import tests.TextureAtlasTest;
@@ -82,7 +83,7 @@ package
 	public class Main extends World2D
 	{
 
-		private var scenes:Vector.<Scene2D> = new Vector.<Scene2D>();
+		private var scenes:Vector.<Class> = new Vector.<Class>();
 		private var activeSceneIdx:uint = 0;
 		public static var stats:Stats = new Stats();
 
@@ -102,32 +103,33 @@ package
 			stage.align = StageAlign.TOP_LEFT;
 			enableErrorChecking = false;
 
-			scenes.push(new SideScrollerTest());
-			scenes.push(new MassiveSpritesTest());
-			scenes.push(new MassiveSpriteCloudTest());
-			scenes.push(new SpriteHierarchyTest());
-			scenes.push(new SpriteHierarchyTest2());
-			scenes.push(new Font2DTest());
-			scenes.push(new Grid2DTest());
-			scenes.push(new SpriteTest());
-			scenes.push(new SpriteAnimTest());
-			scenes.push(new StarFieldTest());
-			scenes.push(new ParticleSystemTest());
-			scenes.push(new CameraTest());
-			scenes.push(new ParticleExplorer());
-			scenes.push(new MaskTest());
-			scenes.push(new TextureAtlasTest());
-			scenes.push(new BatchTest());
-			scenes.push(new TextureRendererTest());
-			scenes.push(new PostProcessingTest());
-			scenes.push(new ColorTransformTest());
-			scenes.push(new Sprite2DCloudParticles());
-			scenes.push(new SpeedTest());
-			scenes.push(new TextureAndRotationOptionsTest());
-			scenes.push(new Transform3DTest());
-			scenes.push(new TextFieldTest());
-			scenes.push(new QuadMaterialTest());
-			scenes.push(new BlurTest());
+			scenes.push(SideScrollerTest);
+			scenes.push(MassiveSpritesTest);
+			scenes.push(MassiveSpriteCloudTest);
+			scenes.push(SpriteHierarchyTest);
+			scenes.push(SpriteHierarchyTest2);
+			scenes.push(Font2DTest);
+			scenes.push(Grid2DTest);
+			scenes.push(SpriteTest);
+			scenes.push(SpriteAnimTest);
+			scenes.push(StarFieldTest);
+			scenes.push(ParticleSystemTest);
+			scenes.push(CameraTest);
+			scenes.push(ParticleExplorer);
+			scenes.push(MaskTest);
+			scenes.push(TextureAtlasTest);
+			scenes.push(BatchTest);
+			scenes.push(TextureRendererTest);
+			scenes.push(PostProcessingTest);
+			scenes.push(ColorTransformTest);
+			scenes.push(Sprite2DCloudParticles);
+			scenes.push(SpeedTest);
+			scenes.push(TextureAndRotationOptionsTest);
+			scenes.push(Transform3DTest);
+			scenes.push(TextFieldTest);
+			scenes.push(QuadMaterialTest);
+			scenes.push(BlurTest);
+			scenes.push(SpriteCloudVisibilityTest);
 
 			var tf:TextFormat = new TextFormat("Arial", 11, 0xFFFFFF, true);
 
@@ -142,7 +144,7 @@ package
 			stage.addEventListener(Event.RESIZE, stageResize);
 			stageResize(null);
 
-			activeSceneIdx = 0; //scenes.length - 1;
+			activeSceneIdx = scenes.length - 1;
 			nextDemo();
 
 			stage.addEventListener(KeyboardEvent.KEY_UP, keyUp);
@@ -169,12 +171,18 @@ package
 
 		public function nextDemo():void
 		{
+			if(scene) {
+				scene.dispose();
+			}
 
 			camera.reset();
 
 			sceneText.text = "(" + (activeSceneIdx + 1) + "/" + scenes.length + ") " + getQualifiedClassName(scenes[activeSceneIdx]) + " // hit space for next test. f for fullscreen";
 
-			setActiveScene(scenes[activeSceneIdx++]);
+			var sceneClass:Class = scenes[activeSceneIdx++] as Class;
+			var currentScene:Scene2D = new sceneClass();
+
+			setActiveScene(currentScene);
 
 			if (activeSceneIdx > scenes.length - 1)
 			{
