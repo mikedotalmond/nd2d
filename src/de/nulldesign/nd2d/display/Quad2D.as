@@ -195,6 +195,7 @@ package de.nulldesign.nd2d.display {
 		override protected function draw(context:Context3D, camera:Camera2D):void {
 			material.blendMode = blendMode;
 			material.modelMatrix = worldModelMatrix;
+			material.nodeTinted = material.nodeTinted;
 			material.viewProjectionMatrix = camera.getViewProjectionMatrix(false);
 			material.render(context, faceList, 0, 2);
 		}

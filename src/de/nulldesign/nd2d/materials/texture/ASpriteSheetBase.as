@@ -41,12 +41,12 @@ package de.nulldesign.nd2d.materials.texture {
 
 	public class ASpriteSheetBase extends EventDispatcher {
 
-		internal var frames:Vector.<Rectangle> = new Vector.<Rectangle>();
-		internal var offsets:Vector.<Point> = new Vector.<Point>();
-		internal var frameNameToIndex:Dictionary = new Dictionary();
-		internal var uvRects:Vector.<Rectangle>;
-		internal var animationMap:Dictionary = new Dictionary();
-		internal var activeAnimation:SpriteSheetAnimation;
+		protected var frames:Vector.<Rectangle> = new Vector.<Rectangle>();
+		protected var offsets:Vector.<Point> = new Vector.<Point>();
+		protected var frameNameToIndex:Dictionary = new Dictionary();
+		protected var uvRects:Vector.<Rectangle>;
+		protected var animationMap:Dictionary = new Dictionary();
+		protected var activeAnimation:SpriteSheetAnimation;
 
 		protected var spritesPackedWithoutSpace:Boolean;
 
@@ -149,6 +149,7 @@ package de.nulldesign.nd2d.materials.texture {
 			if(restart || activeAnimation != animationMap[name]) {
 				frameIdx = startIdx;
 				activeAnimation = animationMap[name];
+				frame = activeAnimation.frames[0];
 			}
 		}
 

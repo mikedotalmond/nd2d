@@ -97,6 +97,7 @@ package de.nulldesign.nd2d.display {
 			
 			material.blendMode = blendMode;
 			material.modelMatrix = worldModelMatrix;
+			material.nodeTinted = nodeIsTinted;
 			material.viewProjectionMatrix = camera.getViewProjectionMatrix(false);
 			
 			if (material as Polygon2DTextureMaterial) {

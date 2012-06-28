@@ -49,6 +49,8 @@ package de.nulldesign.nd2d.materials {
 
 		private const FRAGMENT_SHADER:String =
 				"mov oc, v0		\n";  // mult with colorOffset
+		
+		private const FRAGMENT_SHADER_NO_TINT_ALPHA:String = "tex oc, v0, fs0 <TEXTURE_SAMPLING_OPTIONS>\n";
 
 		public function Quad2DColorMaterial() {
 			drawCalls = 1;
@@ -78,7 +80,7 @@ package de.nulldesign.nd2d.materials {
 
 		override protected function initProgram(context:Context3D):void {
 			if(!shaderData) {
-				shaderData = ShaderCache.getInstance().getShader(context, this, VERTEX_SHADER, FRAGMENT_SHADER, 6, 0);
+				shaderData = ShaderCache.getInstance().getShader(context, this, VERTEX_SHADER, FRAGMENT_SHADER, 6,0, 1000);// texture.textureOptions, nodeTinted ? 0 : 1000);
 			}
 		}
 

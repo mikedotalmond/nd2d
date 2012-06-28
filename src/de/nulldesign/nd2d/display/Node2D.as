@@ -33,7 +33,6 @@ package de.nulldesign.nd2d.display {
 	import de.nulldesign.nd2d.materials.BlendModePresets;
 	import de.nulldesign.nd2d.utils.NodeBlendMode;
 	import de.nulldesign.nd2d.utils.StatsObject;
-	import flash.geom.Matrix;
 
 	import flash.display.Stage;
 	import flash.display3D.Context3D;
@@ -138,7 +137,6 @@ package de.nulldesign.nd2d.display {
 	 * <li>draw - Your rendering code goes here</li>
 	 * </ul>
 	 */
-
 	public class Node2D extends EventDispatcher {
 
 		/**
@@ -171,6 +169,8 @@ package de.nulldesign.nd2d.display {
 		public var children:Vector.<Node2D> = new Vector.<Node2D>();
 
 		public var isBatchNode:Boolean = false;
+
+		public var nodeIsTinted:Boolean = false;
 
 		public var vx:Number;
 		public var vy:Number;
@@ -479,7 +479,6 @@ package de.nulldesign.nd2d.display {
 		}
 
 		public function Node2D() {
-			
 		}
 
 		/**
@@ -536,6 +535,15 @@ package de.nulldesign.nd2d.display {
 			if(parent) {
 				combinedColorTransform.concat(parent.combinedColorTransform);
 			}
+
+			nodeIsTinted = (combinedColorTransform.redMultiplier != 1.0 ||
+					combinedColorTransform.greenMultiplier != 1.0 ||
+					combinedColorTransform.blueMultiplier != 1.0 ||
+					combinedColorTransform.alphaMultiplier != 1.0 ||
+					combinedColorTransform.redOffset != 0.0 ||
+					combinedColorTransform.greenOffset != 0.0 ||
+					combinedColorTransform.blueOffset != 0.0 ||
+					combinedColorTransform.alphaOffset != 0.0);
 
 			for each(var child:Node2D in children) {
 				child.updateColors();
@@ -783,76 +791,58 @@ package de.nulldesign.nd2d.display {
 
 			return null;
 		}
-		
+
+		/**
+		 * transforms a point from the nodes local coordinate system into global space
+		 * @param p
+		 * @return
+		 */
 		public function localToGlobal(p:Point):Point {
-			temp_M.identity();
-			temp_M.append(worldModelMatrix);
-			temp_M.append(camera.getViewProjectionMatrix());
-			
-			temp_V.x = p.x;
-			temp_V.y = p.y;
-			var v:Vector3D = temp_M.transformVector(temp_V);
+
+			var clipSpaceMat:Matrix3D = new Matrix3D();
+			clipSpaceMat.append(worldModelMatrix);
+			clipSpaceMat.append(camera.getViewProjectionMatrix());
+
+			var v:Vector3D = clipSpaceMat.transformVector(new Vector3D(p.x, p.y, 0.0));
 			return new Point((v.x + 1.0) * 0.5 * camera.sceneWidth, (-v.y + 1.0) * 0.5 * camera.sceneHeight);
 		}
-		
-		internal const temp_V:Vector3D = new Vector3D();
-		internal const temp_M:Matrix3D = new Matrix3D();
-		
-		public function localToGlobalV(p:Vector3D):Vector3D {
-			
-			temp_M.identity();
-			temp_M.append(worldModelMatrix);
-			temp_M.append(camera.getViewProjectionMatrix());
-			
-			var v:Vector3D = temp_M.transformVector(p);
-			v.x = (v.x + 1.0)  * 0.5 * camera.sceneWidth;
-			v.y = (-v.y + 1.0) * 0.5 * camera.sceneHeight;
-			
-			return v;
-		}
-		
-		public function globalToLocal(p:Point):Point {
-			
-			temp_M.identity();
-			temp_M.append(worldModelMatrix);
-			temp_M.append(camera.getViewProjectionMatrix());
-			temp_M.invert();
 
-			temp_V.x = (p.x - camera.x) / camera.sceneWidth * 2.0 - 1.0;
-			temp_V.y = -((p.y - camera.y) / camera.sceneHeight * 2.0 - 1.0);
-			temp_V.z = 0;
-			temp_V.w = 1.0;
-			
-  			var v:Vector3D = temp_M.transformVector(temp_V);
+		/**
+		 * transforms a point into the nodes local coordinate system
+		 * @param p
+		 * @return
+		 */
+		public function globalToLocal(p:Point):Point {
+
+			var clipSpaceMat:Matrix3D = new Matrix3D();
+			clipSpaceMat.append(worldModelMatrix);
+			clipSpaceMat.append(camera.getViewProjectionMatrix());
+			clipSpaceMat.invert();
+
+			var from:Vector3D = new Vector3D(p.x / camera.sceneWidth * 2.0 - 1.0,
+					-(p.y / camera.sceneHeight * 2.0 - 1.0),
+					0.0, 1.0);
+
+			var v:Vector3D = clipSpaceMat.transformVector(from);
 			v.w = 1.0 / v.w;
 			v.x /= v.w;
 			v.y /= v.w;
 			//v.z /= v.w;
-			
+
 			return new Point(v.x, v.y);
 		}
-		
-		public function globalToLocalV(p:Vector3D):Vector3D {
-			
-			temp_M.identity();
-			temp_M.append(worldModelMatrix);
-			temp_M.append(camera.getViewProjectionMatrix());
-			temp_M.invert();
 
-			temp_V.x = (p.x - camera.x) / camera.sceneWidth * 2.0 - 1.0;
-			temp_V.y = -((p.y - camera.y) / camera.sceneHeight * 2.0 - 1.0);
-			temp_V.z = 0;
-			temp_V.w = 1.0;
-			
-  			var v:Vector3D = temp_M.transformVector(temp_V);
-			v.w = 1.0 / v.w;
-			v.x /= v.w;
-			v.y /= v.w;
-			v.z = v.w = 0;
-
-			return v;
+		/**
+		 * transforms a point into world coordinates
+		 * @param p
+		 * @return the transformed point
+		 */
+		public function localToWorld(p:Point):Point {
+			var clipSpaceMat:Matrix3D = new Matrix3D();
+			clipSpaceMat.append(worldModelMatrix);
+			var v:Vector3D = clipSpaceMat.transformVector(new Vector3D(p.x, p.y, 0.0));
+			return new Point(v.x, v.y);
 		}
-
 
 		public function dispose():void {
 			for each(var child:Node2D in children) {
